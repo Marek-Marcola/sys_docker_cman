@@ -814,18 +814,6 @@ if [ $USTATUS -eq 1 ]; then
 fi
 
 #
-# stage: PKG-STATUS
-#
-if [ $PSTATUS -eq 1 ]; then
-  (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: PKG-STATUS"
-
-  set -ex
-  crm_resource --why --resource $A
-  { set +ex; } 2>/dev/null
-fi
-
-#
 # stage: PKG-LIST
 #
 if [ $PLIST -eq 1 ]; then
@@ -846,6 +834,18 @@ if [ $PSHOW -eq 1 ]; then
 
   set -ex
   pcs resource show $A
+  { set +ex; } 2>/dev/null
+fi
+
+#
+# stage: PKG-STATUS
+#
+if [ $PSTATUS -eq 1 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: PKG-STATUS"
+
+  set -ex
+  crm_resource --why --resource $A
   { set +ex; } 2>/dev/null
 fi
 
