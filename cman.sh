@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202510270061"
+VERSION_BIN="202510280061"
 
 ID="[${0##*/}]"
 
@@ -17,13 +17,13 @@ EXEC=0
 EVAL=0
 CREATE=0
 CREATE_UNIT=0
-CREATE_PKG=0
+CREATE_PCMK=0
 DELETE=0
 DELETE_UNIT=0
-DELETE_PKG=0
+DELETE_PCMK=0
 RESTART=0
 RESTART_UNIT=0
-RESTART_PKG=0
+RESTART_PCMK=0
 ULIST=0
 USHOW=0
 USTATUS=0
@@ -38,6 +38,8 @@ EEDIT_TEMPLATE=0
 ALIST=0
 AHISTORY=0
 AIMAGE=0
+ANOTE=0
+ATAGS=0
 ALOG=0
 HELP=0
 QUIET=0
@@ -156,7 +158,7 @@ do
       shift
       ;;
     -cp)
-      CREATE_PKG=1
+      CREATE_PCMK=1
       shift
       ;;
     -d)
@@ -168,7 +170,7 @@ do
       shift
       ;;
     -dp)
-      DELETE_PKG=1
+      DELETE_PCMK=1
       shift
       ;;
     -R)
@@ -180,7 +182,7 @@ do
       shift
       ;;
     -Rp)
-      RESTART_PKG=1
+      RESTART_PCMK=1
       shift
       ;;
     -ul)
@@ -244,6 +246,14 @@ do
       AIMAGE=1
       shift
       ;;
+    -an)
+      ANOTE=1
+      shift
+      ;;
+    -at)
+      ATAGS=1
+      shift
+      ;;
     -al)
       ALOG=1
       shift
@@ -283,25 +293,27 @@ if [ $HELP -eq 1 ]; then
   echo "$(basename $0) -e [args2]            # app exec"
   echo "$(basename $0) -c                    # app create"
   echo "$(basename $0) -cu                   # app create unit"
-  echo "$(basename $0) -cp                   # app create pkg"
+  echo "$(basename $0) -cp                   # app create pcmk"
   echo "$(basename $0) -d                    # app delete"
   echo "$(basename $0) -du                   # app delete unit"
-  echo "$(basename $0) -dp                   # app delete pkg"
+  echo "$(basename $0) -dp                   # app delete pcmk"
   echo "$(basename $0) -R                    # app restart"
   echo "$(basename $0) -Ru                   # app restart unit"
-  echo "$(basename $0) -Rp                   # app restart pkg"
+  echo "$(basename $0) -Rp                   # app restart pcmk"
   echo "$(basename $0) -a                    # app list"
   echo "$(basename $0) -ah                   # app history"
   echo "$(basename $0) -ai                   # app image"
+  echo "$(basename $0) -an                   # app note"
+  echo "$(basename $0) -at                   # app tag"
   echo "$(basename $0) -al                   # app log"
   echo ""
   echo "$(basename $0) -ul                   # unit list"
   echo "$(basename $0) -us                   # unit show"
   echo "$(basename $0) -u                    # unit status"
   echo ""
-  echo "$(basename $0) -pl                   # pkg list"
-  echo "$(basename $0) -ps                   # pkg show"
-  echo "$(basename $0) -p                    # pkg status"
+  echo "$(basename $0) -pl                   # pcmk list"
+  echo "$(basename $0) -ps                   # pcmk show"
+  echo "$(basename $0) -p                    # pcmk status"
   echo ""
   echo "$(basename $0) -l                    # env list"
   echo "$(basename $0) -s                    # env show"
@@ -345,9 +357,9 @@ if [ $HELP -eq 1 ]; then
   echo "  ap-apn-api -cu      # create unit & container"
   echo ""
   echo "  --- deployment: pacemaker"
-  echo "  ap-apn-api -dp      # delete pkg & container"
+  echo "  ap-apn-api -dp      # delete package & container"
   echo "  ap-apn-api -r       # run foreground (test)"
-  echo "  ap-apn-api -cp      # create pkg & container"
+  echo "  ap-apn-api -cp      # create package & container"
   exit 0
 fi
 
@@ -372,8 +384,8 @@ OPTS=(
 )'
 fi
 
-: ${PKG_TYPE:="ocf:heartbeat:docker"}
-: ${PKG_ATTR:="image=$I name=$A allow_pull=true"}
+: ${PCMK_TYPE:="ocf:heartbeat:docker"}
+: ${PCMK_ATTR:="image=$I name=$A allow_pull=true"}
 
 #
 # stage: VERSION
@@ -422,48 +434,56 @@ if [ $QUIET -eq 0 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: INFO"
 
-  [[ -n $INFO ]] && echo "info   = ${INFO}"
-  echo "cwd      = $(pwd -P)"
-  echo "efile    = ${EFILE:-[none]}"
-  echo "App      = ${A:-[none]}"
-  echo "Ver      = ${V:-[none]}"
-  echo "Img      = ${I:-[none]}"
-  echo "APN      = ${APN:-[none]}"
-  echo "API      = ${API:-[none]}"
-  echo "wdir     = ${WDIR:-[none]}"
-  echo "edir     = ${EDIR:-[none]}"
-  echo "bdir     = ${BDIR:-[none]}"
-  echo "comm     = ${COMM:-[none]}"
-  echo "run_fg   = ${RUN_FG:-[none]}"
-  echo "run_bg   = ${RUN_BG:-[none]}"
-  echo "pkg_type = ${PKG_TYPE:-[none]}"
-  echo "pkg_attr = ${PKG_ATTR:-[none]}"
+  [[ -n $INFO ]] && echo "info      = $INFO"
+  echo "cwd       = $(pwd -P)"
+  echo "efile     = ${EFILE:-[none]}"
+  echo "App       = ${A:-[none]}"
+  echo "Ver       = ${V:-[none]}"
+  echo "Img       = ${I:-[none]}"
+  echo "APN       = ${APN:-[none]}"
+  echo "API       = ${API:-[none]}"
+  echo "wdir      = ${WDIR:-[none]}"
+  echo "edir      = ${EDIR:-[none]}"
+  echo "bdir      = ${BDIR:-[none]}"
+  echo "comm      = ${COMM:-[none]}"
+  echo "run_fg    = ${RUN_FG:-[none]}"
+  echo "run_bg    = ${RUN_BG:-[none]}"
+  echo "pcmk_type = ${PCMK_TYPE:-[none]}"
+  echo "pcmk_attr = ${PCMK_ATTR:-[none]}"
 
   if [ "$OPTS" != "" ]; then
-    echo "opts     = $(echo ${OPTS[@]}|sed 's/--/\n--/g'|grep -v '^$'|sed '2,$s/^--/           --/')"
+    echo "opts      = $(echo ${OPTS[@]}|sed 's/--/\n--/g'|grep -v '^$'|sed '2,$s/^--/            --/')"
   else
-    echo "opts     = [none]"
+    echo "opts      = [none]"
   fi
   if [ "$OPTS2" != "" ]; then
-    echo "opts2    = ${OPTS2[@]}"
+    echo "opts2     = ${OPTS2[@]}"
   else
-    echo "opts2    = [none]"
+    echo "opts2     = [none]"
   fi
 
-  echo "args     = ${ARGS:-[none]}"
-  echo "args2    = ${ARGS2:-[none]}"
+  echo "args      = ${ARGS:-[none]}"
+  echo "args2     = ${ARGS2:-[none]}"
 
   if [ "$INIT" != "" ]; then
-    echo -n "init     = "
+    echo -n "init      = "
     for cmd in "${INIT[@]}"; do
       echo $cmd
-    done | sed '2,$s/^/         /'
+    done | sed '2,$s/^/            /'
   else
-    echo "init     = [none]"
+    echo "init      = [none]"
+  fi
+
+  if [ "$TAGS" != "" ]; then
+    echo "tags      = $TAGS"
+  fi
+
+  if [ "$NOTE" != "" ]; then
+    echo "note      = $NOTE"
   fi
 
   if [ "$DOCS" != "" ]; then
-    echo -n "docs     = "
+    echo -n "docs      = "
     echo "$DOCS" | sed 's/\!\!/\n/g' | sed '2,$ s/^/         /'
   fi
 fi
@@ -623,17 +643,17 @@ if [ $CREATE_UNIT -eq 1 ]; then
 fi
 
 #
-# stage: APP-CREATE-PKG
+# stage: APP-CREATE-PCMK
 #
-if [ $CREATE_PKG -eq 1 ]; then
+if [ $CREATE_PCMK -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: APP-CREATE-PKG"
+  echo "$ID: stage: APP-CREATE-PCMK"
 
   run_opts="$(echo ${OPTS[@]})"
 
   set -ex
-  pcs resource create $A $PKG_TYPE \
-    $PKG_ATTR \
+  pcs resource create $A $PCMK_TYPE \
+    $PCMK_ATTR \
     run_opts="$run_opts"
   { set +ex; } 2>/dev/null
 fi
@@ -670,11 +690,11 @@ if [ $DELETE_UNIT -eq 1 ]; then
 fi
 
 #
-# stage: APP-DELETE-PKG
+# stage: APP-DELETE-PCMK
 #
-if [ $DELETE_PKG -eq 1 ]; then
+if [ $DELETE_PCMK -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: APP-DELETE-PKG"
+  echo "$ID: stage: APP-DELETE-PCMK"
 
   set -ex
   pcs resource delete $A
@@ -711,11 +731,11 @@ if [ $RESTART_UNIT -eq 1 ]; then
 fi
 
 #
-# stage: APP-RESTART-PKG
+# stage: APP-RESTART-PCMK
 #
-if [ $RESTART_PKG -eq 1 ]; then
+if [ $RESTART_PCMK -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: APP-RESTART-PKG"
+  echo "$ID: stage: APP-RESTART-PCMK"
 
   set -ex
   pcs resource restart $A
@@ -769,6 +789,48 @@ if [ $AIMAGE -eq 1 ]; then
 fi
 
 #
+# stage: APP-NOTE
+#
+if [ $ANOTE -eq 1 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: APP-NOTE"
+
+  (
+  echo App Note
+  for f in $(ls -A $EDIR); do
+    (
+      unset NOTE
+      . $EDIR/$f
+      [[ "$NOTE" = "" ]] && NOTE="-"
+      XNOTE=$(echo $NOTE|sed 's/ /__SPACE__/g')
+      echo $(basename $f) $XNOTE
+    )
+  done
+  ) | column -t | sed 's/__SPACE__/ /g'
+fi
+
+#
+# stage: APP-TAGS
+#
+if [ $ATAGS -eq 1 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: APP-TAGS"
+
+  (
+  echo App Tags
+  for f in $(ls -A $EDIR); do
+    (
+      unset TAGS
+      . $EDIR/$f
+      [[ "$TAGS" = "" ]] && TAGS="-"
+      XTAGS=$(echo $TAGS|sed 's/ /__SPACE__/g')
+      echo $(basename $f) $XTAGS
+    )
+  done
+  ) | column -t | sed 's/__SPACE__/ /g'
+fi
+
+#
 # stage: APP-LOG
 #
 if [ $ALOG -eq 1 ]; then
@@ -817,11 +879,11 @@ if [ $USTATUS -eq 1 ]; then
 fi
 
 #
-# stage: PKG-LIST
+# stage: PCMK-LIST
 #
 if [ $PLIST -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: PKG-LIST"
+  echo "$ID: stage: PCMK-LIST"
 
   set -ex
   pcs resource | column -t
@@ -829,11 +891,11 @@ if [ $PLIST -eq 1 ]; then
 fi
 
 #
-# stage: PKG-SHOW
+# stage: PCMK-SHOW
 #
 if [ $PSHOW -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: PKG-SHOW"
+  echo "$ID: stage: PCMK-SHOW"
 
   set -ex
   pcs resource show $A
@@ -841,11 +903,11 @@ if [ $PSHOW -eq 1 ]; then
 fi
 
 #
-# stage: PKG-STATUS
+# stage: PCMK-STATUS
 #
 if [ $PSTATUS -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: PKG-STATUS"
+  echo "$ID: stage: PCMK-STATUS"
 
   set -ex
   crm_resource --why --resource $A
