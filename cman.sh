@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202510280061"
+VERSION_BIN="202510310061"
 
 ID="[${0##*/}]"
 
@@ -285,8 +285,8 @@ if [ $HELP -eq 1 ]; then
   echo "$(basename $0) -Bl                   # backup list"
   echo "$(basename $0) -L [-x]               # link show,run"
   echo ""
-  echo "$(basename $0) -P                    # img pull"
-  echo "$(basename $0) -ic                   # img chain"
+  echo "$(basename $0) -P                    # image pull"
+  echo "$(basename $0) -ic                   # image chain"
   echo ""
   echo "$(basename $0) -init [-x]            # app init show,run"
   echo "$(basename $0) -r [opts2] [-- args2] # app run"
