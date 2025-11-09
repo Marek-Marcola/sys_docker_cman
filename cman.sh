@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202510310061"
+VERSION_BIN="202511100061"
 
 ID="[${0##*/}]"
 
@@ -384,7 +384,14 @@ OPTS=(
 )'
 fi
 
-: ${PCMK_TYPE:="ocf:heartbeat:docker"}
+if [ -z $PCMK_TYPE ]; then
+  if [ $(type -t podman) ]; then
+    PCMK_TYPE="ocf:heartbeat:podman"
+  else
+    PCMK_TYPE="ocf:heartbeat:docker"
+  fi
+fi
+
 : ${PCMK_ATTR:="image=$I name=$A allow_pull=true"}
 
 #
