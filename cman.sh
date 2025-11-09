@@ -378,7 +378,7 @@ for f in /usr/local/etc/cman.env $EDIR/$A $HOME/.cman.env .cman.env $CMANENV; do
 done
 
 if [ "$ETEMPLATE" = "" ]; then
-ETEMPLATE=': ${V:=0}
+ETEMPLATE=': ${V:=m.m.p}
 : ${I:=scr.dc.local/is/repo:$V}
 OPTS=(
 )'
