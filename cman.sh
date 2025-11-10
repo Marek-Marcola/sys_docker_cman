@@ -491,7 +491,7 @@ if [ $QUIET -eq 0 ]; then
 
   if [ "$DOCS" != "" ]; then
     echo -n "docs      = "
-    echo "$DOCS" | sed 's/\!\!/\n/g' | sed '2,$ s/^/         /'
+    echo "$DOCS" | sed 's/\!\!/\n/g' | sed '2,$ s/^/            /'
   fi
 fi
 
