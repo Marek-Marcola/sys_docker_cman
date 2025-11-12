@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202511100061"
+VERSION_BIN="202511130061"
 
 ID="[${0##*/}]"
 
@@ -591,11 +591,10 @@ if [ $RUN -eq 1 ]; then
     { set +ex; } 2>/dev/null
   fi
 
-  OL=$(echo "${OPTS[@]}" "${OPTS2[@]}" --name $A)
   AL=$(echo $ARGS $ARGS2)
 
   set -ex
-  docker container run $RUN_FG $OL $I $AL
+  docker container run $RUN_FG "${OPTS[@]}" "${OPTS2[@]}" --name $A $I $AL
   { set +ex; } 2>/dev/null
 fi
 
