@@ -21,3 +21,14 @@ Verify:
 Help:
 
     cman.sh --help
+
+Alias:
+
+    # cat > /etc/profile.d/zlocal-cman.sh <<\EOF
+    export PATH=/usr/local/bin/alias-cman:$PATH
+    
+    cm() {
+      local desc="@@container management (via cman.sh)@@"
+      cman.sh $@
+    }
+    EOF
