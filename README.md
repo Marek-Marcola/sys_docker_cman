@@ -1,7 +1,7 @@
 docker cman
 ===========
 
-Docker container management tools.
+Container management tools.
 
 Deployment models: docker, podman, systemd, pacemaker
 
