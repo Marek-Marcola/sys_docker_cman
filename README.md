@@ -10,9 +10,12 @@ Install
 Install:
 
     ./cman.sh --install
-
+    -- or --
     cp -fv cman.sh /usr/local/bin/cman.sh
     cp -fv cman.sh /usr/local/bin/cman-exec.sh
+
+    mkdir -pv /usr/local/etc/cman.d
+    mkdir -pv /usr/local/bin/alias-cman
 
 Verify:
 
