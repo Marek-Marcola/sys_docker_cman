@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202511130061"
+VERSION_BIN="202511200061"
 
 ID="[${0##*/}]"
 
@@ -283,6 +283,7 @@ if [ $HELP -eq 1 ]; then
   echo "$(basename $0) -version              # version"
   echo "$(basename $0) -B                    # backup"
   echo "$(basename $0) -Bl                   # backup list"
+  echo ""
   echo "$(basename $0) -L [-x]               # link show,run"
   echo ""
   echo "$(basename $0) -P                    # image pull"
@@ -342,23 +343,26 @@ if [ $HELP -eq 1 ]; then
   echo ""
   echo "  ap-apn-api -init -x # init"
   echo ""
-  echo "  ap-apn-api -E       # edit"
-  echo "  ap-apn-api -P       # pull"
+  echo "  ap-apn-api -E       # env edit"
+  echo "  ap-apn-api -P       # image pull"
   echo ""
   echo "  --- deployment: docker"
   echo "  ap-apn-api -d       # delete container"
-  echo "  ap-apn-api -r       # run foreground (test)"
+  echo "  ap-apn-api -E       # env edit"
+  echo "  ap-apn-api -r       # run foreground (for verification)"
   echo "  ap-apn-api -c       # run background"
   echo ""
   echo "  --- deployment: podman"
   echo "  ap-apn-api -du      # delete unit & container"
-  echo "  ap-apn-api -r       # run foreground (test)"
+  echo "  ap-apn-api -E       # env edit"
+  echo "  ap-apn-api -r       # run foreground (for verification)"
   echo "  ap-apn-api -c       # run background"
   echo "  ap-apn-api -cu      # create unit & container"
   echo ""
   echo "  --- deployment: pacemaker"
   echo "  ap-apn-api -dp      # delete package & container"
-  echo "  ap-apn-api -r       # run foreground (test)"
+  echo "  ap-apn-api -E       # env edit"
+  echo "  ap-apn-api -r       # run foreground (for verification)"
   echo "  ap-apn-api -cp      # create package & container"
   exit 0
 fi
