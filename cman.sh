@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202511200061"
+VERSION_BIN="202511220061"
 
 ID="[${0##*/}]"
 
@@ -370,8 +370,15 @@ fi
 #
 # stage: CONFIG
 #
+
+# get ipv4 of network interface
 ipa() {
   ifconfig $1 | grep mask | awk '{print $2}'
+}
+
+# get ipv4 of host name
+n2a() {
+  getent -i ahostsv4 $1 | head -1 | awk '{print $1}'
 }
 
 for f in /usr/local/etc/cman.env $EDIR/$A $HOME/.cman.env .cman.env $CMANENV; do
@@ -397,6 +404,7 @@ if [ -z $PCMK_TYPE ]; then
 fi
 
 : ${PCMK_ATTR:="image=$I name=$A allow_pull=true"}
+: ${PCMK_OPTS:=""}
 
 #
 # stage: VERSION
@@ -461,6 +469,7 @@ if [ $QUIET -eq 0 ]; then
   echo "run_bg    = ${RUN_BG:-[none]}"
   echo "pcmk_type = ${PCMK_TYPE:-[none]}"
   echo "pcmk_attr = ${PCMK_ATTR:-[none]}"
+  echo "pcmk_opts = ${PCMK_OPTS:-[none]}"
 
   if [ "$OPTS" != "" ]; then
     echo "opts      = $(echo ${OPTS[@]}|sed 's/--/\n--/g'|grep -v '^$'|sed '2,$s/^--/            --/')"
@@ -662,9 +671,11 @@ if [ $CREATE_PCMK -eq 1 ]; then
   run_opts="$(echo ${OPTS[@]})"
 
   set -ex
-  pcs resource create $A $PCMK_TYPE \
+  pcs resource create $A \
+    $PCMK_TYPE \
     $PCMK_ATTR \
-    run_opts="$run_opts"
+    run_opts="$run_opts" \
+    $PCMK_OPTS
   { set +ex; } 2>/dev/null
 fi
 
