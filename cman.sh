@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202511230061"
+VERSION_BIN="202511270061"
 
 ID="[${0##*/}]"
 
@@ -78,8 +78,7 @@ if [[ $COMM == *cman-exec.sh ]]; then
   QUIET=1
 fi
 
-while [ $# -gt 0 ]
-do
+while [ $# -gt 0 ]; do
   case $1 in
     --inst*|-inst*)
       INSTALL=1
