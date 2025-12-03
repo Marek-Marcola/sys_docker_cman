@@ -17,15 +17,7 @@ Install:
     mkdir -pv /usr/local/etc/cman.d
     mkdir -pv /usr/local/bin/alias-cman
 
-Verify:
-
-    cman.sh --version
-
-Help:
-
-    cman.sh --help
-
-Alias:
+Postinstall:
 
     # cat > /etc/profile.d/zlocal-cman.sh <<\EOF
     export PATH=/usr/local/bin/alias-cman:$PATH
@@ -35,3 +27,11 @@ Alias:
       cman.sh $@
     }
     EOF
+
+Verify:
+
+    cman.sh --version
+
+Help:
+
+    cman.sh --help
