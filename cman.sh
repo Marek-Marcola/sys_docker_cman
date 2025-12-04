@@ -49,8 +49,6 @@ declare -a OPTS2
 ARGS2=""
 REXP=""
 
-DDIR=/var/backup/cman
-
 s=0
 
 : ${A:=$(basename ${BASH_SOURCE%.sh})}
@@ -58,6 +56,7 @@ s=0
 : ${API:=$(echo $A|cut -d- -f3-)}
 : ${EDIR:="/usr/local/etc/cman.d"}
 : ${BDIR:="/usr/local/bin/alias-cman"}
+: ${DDIR:="/var/backup/cman"}
 : ${COMM:=$(readlink -f ${BASH_SOURCE})}
 
 : ${RUN_FG:="-ti --rm"}
@@ -1039,7 +1038,7 @@ if [ $BACKUP -ne 0 ]; then
 
   if [ ! -d $DDIR ]; then
     set -x
-    mkdir -p $DDIR
+    mkdir -pv $DDIR
     { set +x; } 2>/dev/null
   fi
 
