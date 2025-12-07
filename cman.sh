@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202512060061"
+VERSION_BIN="202512070061"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -570,8 +570,13 @@ if [ $CHAIN -ne 0 ]; then
   echo "$ID: stage: IMAGE-CHAIN"
 
   docker image history --format "table {{printf \"%.1000s\" .CreatedBy}}" --no-trunc $I | \
-    grep ENV | grep INFO_DATE | awk -FENV '{print $2}' | xargs -L1 | \
-    sed 's/INFO_//g' | sed 's/DATE=//g' | column -t
+    grep ENV | \
+    grep INFO_DATE | \
+    awk -FENV '{print $2}' | \
+    xargs -L1 | \
+    sed 's/INFO_//g' | \
+    sed 's/DATE=//g' | \
+    column -t
   true
 fi
 
