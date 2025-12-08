@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202512070061"
+VERSION_BIN="202512080061"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -926,7 +926,7 @@ if [ $PSHOW -eq 1 ]; then
   echo "$ID: stage: PCMK-SHOW"
 
   set -ex
-  pcs resource show $A
+  pcs resource config $A
   { set +ex; } 2>/dev/null
 fi
 
