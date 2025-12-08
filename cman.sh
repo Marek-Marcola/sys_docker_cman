@@ -28,6 +28,8 @@ RESTART_PCMK=0
 ULIST=0
 USHOW=0
 USTATUS=0
+PENABLE=0
+PDISABLE=0
 PLIST=0
 PSHOW=0
 PSTATUS=0
@@ -197,6 +199,16 @@ while [ $# -gt 0 ]; do
       USTATUS=1
       shift
       ;;
+    -pe)
+      PENABLE=1
+      PSTATUS=1
+      shift
+      ;;
+    -pd)
+      PDISABLE=1
+      PSTATUS=1
+      shift
+      ;;
     -pl)
       PLIST=1
       QUIET=1
@@ -314,6 +326,8 @@ if [ $HELP -eq 1 ]; then
   echo "$SN -us                   # unit show"
   echo "$SN -u                    # unit status"
   echo ""
+  echo "$SN -pe                   # pcmk enable"
+  echo "$SN -pd                   # pcmk disable"
   echo "$SN -pl                   # pcmk list"
   echo "$SN -ps                   # pcmk show"
   echo "$SN -p                    # pcmk status"
@@ -903,6 +917,32 @@ if [ $USTATUS -eq 1 ]; then
 
   set -ex
   systemctl status container-$A.service --no-pager -l
+  { set +ex; } 2>/dev/null
+fi
+
+#
+# stage: PCMK-ENABLE
+#
+if [ $PENABLE -eq 1 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: PCMK-ENABLE"
+
+  set -ex
+  pcs resource enable $A
+  pcs status wait 30
+  { set +ex; } 2>/dev/null
+fi
+
+#
+# stage: PCMK-DISABLE
+#
+if [ $PDISABLE -eq 1 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: PCMK-DISABLE"
+
+  set -ex
+  pcs resource disable $A
+  pcs status wait 30
   { set +ex; } 2>/dev/null
 fi
 
