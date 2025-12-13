@@ -279,14 +279,12 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-if [ $ARGC -eq 0 ]; then
-  if [ "$A" = "cman" ]; then
-    AIMAGE=1
-    QUIET=1
-  else
-    AHISTORY=1
-  fi
-elif [ $ARGC -eq 1 -a "${OPTS2[0]}" != "" ]; then
+if [[ $ARGC -eq 0 && "$A" = "cman" ]]; then
+  AIMAGE=1
+  QUIET=1
+elif [[ $ARGC -eq 0 && $COMM != *cman-exec.sh ]]; then
+  AHISTORY=1
+elif [[ $ARGC -eq 1 && "${OPTS2[0]}" != "" ]]; then
   AIMAGE=1
   AIMAGE_RE=${OPTS2[0]}
   QUIET=1
@@ -350,6 +348,7 @@ if [ $HELP -eq 1 ]; then
   echo "  -Bd - bin dir (bdir)"
   echo ""
   echo "env files: /usr/local/etc/cman.env $EDIR/\$A \$HOME/.cman.env .cman.env \$CMANENV"
+  echo ""
   echo "env variables available in env file:"
   echo "  \$A   - container name"
   echo "  \$V   - image version"
