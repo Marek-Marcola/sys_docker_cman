@@ -818,7 +818,6 @@ if [ $AIMAGE -eq 1 ]; then
 
   (
   echo App Image Ver
-  #for f in $(ls -A $EDIR); do
   for f in $EDIR/*$AIMAGE_RE*; do
     (
     if [ -f $f ]; then
