@@ -48,6 +48,7 @@ ALOG=0
 HELP=0
 QUIET=0
 
+ARGC=$#
 declare -a ARGS1
 declare -a OPTS2
 ARGS2=""
@@ -64,15 +65,6 @@ s=0
 
 : ${RUN_FG:="-ti --rm"}
 : ${RUN_BG:="-d --restart=always"}
-
-if [ $# -eq 0 ]; then
-  if [ "$A" = "cman" ]; then
-    AIMAGE=1
-    QUIET=1
-  else
-    AHISTORY=1
-  fi
-fi
 
 if [[ $COMM == *cman-exec.sh ]]; then
   set - -- $*
@@ -287,6 +279,19 @@ while [ $# -gt 0 ]; do
   esac
 done
 
+if [ $ARGC -eq 0 ]; then
+  if [ "$A" = "cman" ]; then
+    AIMAGE=1
+    QUIET=1
+  else
+    AHISTORY=1
+  fi
+elif [ $ARGC -eq 1 -a "${OPTS2[0]}" != "" ]; then
+  AIMAGE=1
+  AIMAGE_RE=${OPTS2[0]}
+  QUIET=1
+fi
+
 #
 # stage: HELP
 #
@@ -335,7 +340,7 @@ if [ $HELP -eq 1 ]; then
   echo "$SN -E                    # env edit"
   echo "$SN -Et                   # env edit with template"
   echo ""
-  echo "$SN                       # app image"
+  echo "$SN [re]                  # app image"
   echo ""
   echo "opts:"
   echo "  -A  - container name"
