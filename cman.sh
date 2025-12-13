@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202512110061"
+VERSION_BIN="202512130061"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -35,12 +35,13 @@ PSHOW=0
 PSTATUS=0
 ELIST=0
 ESHOW=0
-ESHOW_REXP=""
+ESHOW_RE=""
 EEDIT=0
 EEDIT_TEMPLATE=0
 ALIST=0
 AHISTORY=0
 AIMAGE=0
+AIMAGE_RE=""
 ANOTE=0
 ATAGS=0
 ALOG=0
@@ -50,7 +51,6 @@ QUIET=0
 declare -a ARGS1
 declare -a OPTS2
 ARGS2=""
-REXP=""
 
 s=0
 
@@ -67,7 +67,7 @@ s=0
 
 if [ $# -eq 0 ]; then
   if [ "$A" = "cman" ]; then
-    ELIST=1
+    AIMAGE=1
     QUIET=1
   else
     AHISTORY=1
@@ -226,11 +226,11 @@ while [ $# -gt 0 ]; do
       ELIST=1
       shift
       ;;
-    -s*)
-      [[ "$1" != "-s" ]] && ESHOW_REXP=${1:2}
+    -s)
       ESHOW=1
+      ESHOW_RE="$2"
       QUIET=1
-      shift
+      shift; shift
       ;;
     -E)
       EEDIT=1
@@ -251,7 +251,9 @@ while [ $# -gt 0 ]; do
       ;;
     -ai)
       AIMAGE=1
-      shift
+      AIMAGE_RE="$2"
+      QUIET=1
+      shift; shift
       ;;
     -an)
       ANOTE=1
@@ -313,7 +315,7 @@ if [ $HELP -eq 1 ]; then
   echo "$SN -Rp                   # app restart pcmk"
   echo "$SN -a                    # app list"
   echo "$SN -ah                   # app history"
-  echo "$SN -ai                   # app image"
+  echo "$SN -ai [re]              # app image"
   echo "$SN -an                   # app note"
   echo "$SN -at                   # app tag"
   echo "$SN -al                   # app log"
@@ -329,10 +331,11 @@ if [ $HELP -eq 1 ]; then
   echo "$SN -p                    # pcmk status"
   echo ""
   echo "$SN -l                    # env list"
-  echo "$SN -s[rexp]              # env show"
+  echo "$SN -s [re]               # env show"
   echo "$SN -E                    # env edit"
   echo "$SN -Et                   # env edit with template"
-  echo "$SN                       # env list"
+  echo ""
+  echo "$SN                       # app image"
   echo ""
   echo "opts:"
   echo "  -A  - container name"
@@ -811,21 +814,24 @@ fi
 #
 if [ $AIMAGE -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: APP-IMAGE"
+  echo "$ID: stage: APP-IMAGE (re: *$AIMAGE_RE*)"
 
   (
   echo App Image Ver
-  for f in $(ls -A $EDIR); do
+  #for f in $(ls -A $EDIR); do
+  for f in $EDIR/*$AIMAGE_RE*; do
     (
+    if [ -f $f ]; then
       unset I
       unset V
-      . $EDIR/$f
+      . $f
       [[ "$I" = "" ]] && I="-"
       [[ "$V" = "" ]] && V="-"
       echo $(basename $f) $I $V
+    fi
     )
   done
-  ) | column -t
+  ) 2>/dev/null | column -t
 fi
 
 #
@@ -999,9 +1005,9 @@ fi
 #
 if [ $ESHOW -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: ENV-SHOW (rexp: *$ESHOW_REXP*)"
+  echo "$ID: stage: ENV-SHOW (re: *$ESHOW_RE*)"
 
-  if [ "$A" != "cman" -a  "$ESHOW_REXP" = "" ]; then
+  if [ "$A" != "cman" -a  "$ESHOW_RE" = "" ]; then
     if [ ! -f $EDIR/$A ]; then
       echo file not found: $EDIR/$A
     else
@@ -1010,7 +1016,7 @@ if [ $ESHOW -eq 1 ]; then
       { set +ex; } 2>/dev/null
     fi
   else
-    for f in $EDIR/*$ESHOW_REXP*; do
+    for f in $EDIR/*$ESHOW_RE*; do
       if [ -f $f ]; then
         set -ex
         cat $f  2>&1
