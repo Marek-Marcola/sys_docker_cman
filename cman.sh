@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202512130061"
+VERSION_BIN="202512220061"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -525,7 +525,7 @@ if [ $QUIET -eq 0 ]; then
 
   if [ "$DOCS" != "" ]; then
     echo -n "docs      = "
-    echo "$DOCS" | sed 's/\!\!/\n/g' | sed '2,$ s/^/            /'
+    echo "$DOCS" | sed '/^$/d' | sed 's/\!\!/\n/g' | sed '2,$ s/^/            /'
   fi
 fi
 
