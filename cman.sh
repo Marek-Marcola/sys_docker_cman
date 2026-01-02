@@ -135,6 +135,11 @@ while [ $# -gt 0 ]; do
       RUN=1
       shift
       ;;
+    -rs)
+      RUN=1
+      ARGS2="bash -l"
+      shift
+      ;;
     -e)
       EXEC=1
       QUIET=1
@@ -346,6 +351,9 @@ if [ $HELP -eq 1 ]; then
   echo "  -I  - image name"
   echo "  -Ed - env dir (edir)"
   echo "  -Bd - bin dir (bdir)"
+  echo ""
+  echo "alias:"
+  echo "  -rs  = -r -- bash -l"
   echo ""
   echo "env files: /usr/local/etc/cman.env $EDIR/\$A \$HOME/.cman.env .cman.env \$CMANENV"
   echo ""
