@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202601230061"
+VERSION_BIN="202601240061"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -850,8 +850,17 @@ if [ $AIMAGE -eq 1 ]; then
       unset I
       unset V
       . $f
-      [[ "$I" = "" ]] && I="-"
+
+      if [ "$I" = "" ]; then
+        if [ "$A" != "" ]; then
+          I="[$A]"
+        else
+          I="-"
+        fi
+      fi
+
       [[ "$V" = "" ]] && V="-"
+
       echo $(basename $f) $I $V
     fi
     )
