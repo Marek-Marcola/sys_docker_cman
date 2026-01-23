@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202601140061"
+VERSION_BIN="202601230061"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -9,6 +9,8 @@ INSTALL=0
 VERSION=0
 BACKUP=0
 BACKUP_LIST=0
+DEBUG=0
+DEBUG_OPTS=""
 LINK=0
 PULL=0
 CHAIN=0
@@ -89,6 +91,11 @@ while [ $# -gt 0 ]; do
       ;;
     -Bl)
       BACKUP_LIST=1
+      shift
+      ;;
+    -g)
+      DEBUG=1
+      DEBUG_OPTS="--log-level=debug"
       shift
       ;;
     -A)
@@ -345,7 +352,8 @@ if [ $HELP -eq 1 ]; then
   echo ""
   echo "$SN [re]                  # app image"
   echo ""
-  echo "opts:"
+  echo "common opts:"
+  echo "  -g  - debug"
   echo "  -A  - container name"
   echo "  -V  - image version"
   echo "  -I  - image name"
@@ -591,7 +599,7 @@ if [ $PULL -ne 0 ]; then
   echo "$ID: stage: IMAGE-PULL"
 
   set -ex
-  docker image pull $I
+  docker $DEBUG_OPTS image pull $I
   { set +ex; } 2>/dev/null
 fi
 
@@ -647,7 +655,7 @@ if [ $RUN -eq 1 ]; then
   AL=$(echo $ARGS $ARGS2)
 
   set -ex
-  docker container run $RUN_FG "${OPTS[@]}" "${OPTS2[@]}" --name $A $I $AL
+  docker $DEBUG_OPTS container run $RUN_FG "${OPTS[@]}" "${OPTS2[@]}" --name $A $I $AL
   { set +ex; } 2>/dev/null
 fi
 
@@ -665,12 +673,12 @@ if [ $EXEC -eq 1 ]; then
   fi
 
   if [ "$ARGS" = "" -a "$ARGS2" = "" ]; then
-    echo docker container exec -ti $A bash --login
-    docker container exec -ti $A bash --login
+    echo docker $DEBUG_OPTS container exec -ti $A bash --login
+    docker $DEBUG_OPTS container exec -ti $A bash --login
   else
     ARGSL=$(echo $ARGS $ARGS2)
-    echo docker container exec -i $A bash --login "<<< \"$ARGSL\""
-    docker container exec -i $A bash --login <<< "$ARGSL"
+    echo docker $DEBUG_OPTS container exec -i $A bash --login "<<< \"$ARGSL\""
+    docker $DEBUG_OPTS container exec -i $A bash --login <<< "$ARGSL"
   fi
 fi
 
@@ -682,7 +690,7 @@ if [ $CREATE -eq 1 ]; then
   echo "$ID: stage: APP-CREATE"
 
   set -ex
-  docker container run $RUN_BG "${OPTS[@]}" --name $A $I $ARGS ${@:2}
+  docker $DEBUG_OPTS container run $RUN_BG "${OPTS[@]}" --name $A $I $ARGS ${@:2}
   { set +ex; } 2>/dev/null
 fi
 
@@ -727,8 +735,8 @@ if [ $DELETE -eq 1 ]; then
   echo "$ID: stage: APP-DELETE"
 
   set -ex
-  docker container stop $A
-  docker container rm $A
+  docker $DEBUG_OPTS container stop $A
+  docker $DEBUG_OPTS container rm $A
   { set +ex; } 2>/dev/null
 fi
 
@@ -770,8 +778,8 @@ if [ $RESTART -eq 1 ]; then
   echo "$ID: stage: APP-RESTART"
 
   set -ex
-  docker container stop --wait 30 $A
-  docker container start $A
+  docker $DEBUG_OPTS container stop --wait 30 $A
+  docker $DEBUG_OPTS container start $A
   { set +ex; } 2>/dev/null
 fi
 
@@ -811,7 +819,7 @@ if [ $ALIST -eq 1 ]; then
   echo "$ID: stage: APP-LIST"
 
   set -ex
-  docker container ls -a
+  docker $DEBUG_OPTS container ls -a
   { set +ex; } 2>/dev/null
 fi
 
@@ -823,7 +831,7 @@ if [ $AHISTORY -eq 1 ]; then
   echo "$ID: stage: APP-HISTORY"
 
   set -ex
-  docker container ls -a --filter name=$A
+  docker $DEBUG_OPTS container ls -a --filter name=$A
   { set +ex; } 2>/dev/null
 fi
 
@@ -901,7 +909,7 @@ if [ $ALOG -eq 1 ]; then
   echo "$ID: stage: APP-LOG"
 
   set -ex
-  docker container logs -f $A
+  docker $DEBUG_OPTS container logs -f $A
   { set +ex; } 2>/dev/null
 fi
 
