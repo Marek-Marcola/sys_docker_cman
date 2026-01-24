@@ -51,9 +51,9 @@ HELP=0
 QUIET=0
 
 ARGC=$#
-declare -a ARGS1
-declare -a OPTS2
+ARGS=""
 ARGS2=""
+declare -a OPTS2
 
 s=0
 
@@ -144,7 +144,7 @@ while [ $# -gt 0 ]; do
       ;;
     -rs)
       RUN=1
-      ARGS2="bash -l"
+      ARGS="bash -l"
       shift
       ;;
     -e)
