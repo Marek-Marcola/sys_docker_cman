@@ -673,12 +673,19 @@ if [ $EXEC -eq 1 ]; then
   fi
 
   if [ "$ARGS" = "" -a "$ARGS2" = "" ]; then
-    echo docker $DEBUG_OPTS container exec -ti $A bash --login
-    docker $DEBUG_OPTS container exec -ti $A bash --login
+    set -x
+    docker $DEBUG_OPTS container exec -ti $A bash -l
+    { set +ex; } 2>/dev/null
   else
-    ARGSL=$(echo $ARGS $ARGS2)
-    echo docker $DEBUG_OPTS container exec -i $A bash --login "<<< \"$ARGSL\""
-    docker $DEBUG_OPTS container exec -i $A bash --login <<< "$ARGSL"
+    if [ "$ARGS2" != "" ]; then
+      AL=( "$ARGS $ARGS2" )
+    else
+      AL=( "$ARGS" )
+    fi
+
+    set -x
+    docker $DEBUG_OPTS container exec -ti $A bash -l -c "${AL[@]}"
+    { set +ex; } 2>/dev/null
   fi
 fi
 
