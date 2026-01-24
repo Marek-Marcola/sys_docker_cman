@@ -51,8 +51,8 @@ HELP=0
 QUIET=0
 
 ARGC=$#
-ARGS=""
-ARGS2=""
+: ${ARGS:=""}
+: ${ARGS2:=""}
 declare -a OPTS2
 
 s=0
