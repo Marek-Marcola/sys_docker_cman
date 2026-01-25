@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202601240061"
+VERSION_BIN="202601250061"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -724,12 +724,14 @@ if [ $CREATE_PCMK -eq 1 ]; then
   echo "$ID: stage: APP-CREATE-PCMK"
 
   run_opts="$(echo ${OPTS[@]})"
+  run_cmd="$ARGS"
 
   set -ex
   pcs resource create $A \
     $PCMK_TYPE \
     $PCMK_ATTR \
     run_opts="$run_opts" \
+    run_cmd="$run_cmd" \
     $PCMK_OPTS
   { set +ex; } 2>/dev/null
 fi
