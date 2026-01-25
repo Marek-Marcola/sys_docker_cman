@@ -723,15 +723,25 @@ if [ $CREATE_PCMK -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: APP-CREATE-PCMK"
 
-  run_opts="$(echo ${OPTS[@]})"
-  run_cmd="$ARGS"
+  if [ "$OPTS" != "" ]; then
+    s="${OPTS[@]}"
+    run_opts=( run_opts="$s" )
+  else
+    run_opts=()
+  fi
+
+  if [ "$ARGS" != "" ]; then
+    run_cmd=( run_cmd="$ARGS" )
+  else
+    run_cmd=()
+  fi
 
   set -ex
   pcs resource create $A \
     $PCMK_TYPE \
     $PCMK_ATTR \
-    run_opts="$run_opts" \
-    run_cmd="$run_cmd" \
+    "${run_opts[@]}" \
+    "${run_cmd[@]}" \
     $PCMK_OPTS
   { set +ex; } 2>/dev/null
 fi
