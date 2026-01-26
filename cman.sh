@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202601250061"
+VERSION_BIN="202601260061"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -672,16 +672,12 @@ if [ $EXEC -eq 1 ]; then
     { set +ex; } 2>/dev/null
   fi
 
-  if [ "$ARGS" = "" -a "$ARGS2" = "" ]; then
+  if [ "$ARGS2" = "" ]; then
     set -x
     docker $DEBUG_OPTS container exec -ti $A bash -l
     { set +ex; } 2>/dev/null
   else
-    if [ "$ARGS2" != "" ]; then
-      AL=( "$ARGS $ARGS2" )
-    else
-      AL=( "$ARGS" )
-    fi
+    AL=( "$ARGS2" )
 
     set -x
     docker $DEBUG_OPTS container exec -ti $A bash -l -c "${AL[@]}"
