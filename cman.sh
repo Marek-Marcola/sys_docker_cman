@@ -672,16 +672,32 @@ if [ $EXEC -eq 1 ]; then
     { set +ex; } 2>/dev/null
   fi
 
-  if [ "$ARGS2" = "" ]; then
-    set -x
-    docker $DEBUG_OPTS container exec -ti $A bash -l
-    { set +ex; } 2>/dev/null
+  if [[ $COMM == *cman-exec.sh ]]; then
+    if [ "$ARGS" = "" -a "$ARGS2" = "" ]; then
+      set -x
+      docker $DEBUG_OPTS container exec -ti $A bash -l
+      { set +ex; } 2>/dev/null
+    else
+      if [ "$ARGS2" != "" ]; then
+        AL=( "$ARGS $ARGS2" )
+      else
+        AL=( "$ARGS" )
+      fi
+      set -x
+      docker $DEBUG_OPTS container exec -ti $A bash -l -c "${AL[@]}"
+      { set +ex; } 2>/dev/null
+    fi
   else
-    AL=( "$ARGS2" )
-
-    set -x
-    docker $DEBUG_OPTS container exec -ti $A bash -l -c "${AL[@]}"
-    { set +ex; } 2>/dev/null
+    if [ "$ARGS2" = "" ]; then
+      set -x
+      docker $DEBUG_OPTS container exec -ti $A bash -l
+      { set +ex; } 2>/dev/null
+    else
+      AL=( "$ARGS2" )
+      set -x
+      docker $DEBUG_OPTS container exec -ti $A bash -l -c "${AL[@]}"
+      { set +ex; } 2>/dev/null
+    fi
   fi
 fi
 
