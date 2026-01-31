@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202601260061"
+VERSION_BIN="202602010061"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -431,14 +431,14 @@ for f in /usr/local/etc/cman.env $EDIR/$A $HOME/.cman.env .cman.env $CMANENV; do
   fi
 done
 
-if [ "$ETEMPLATE" = "" ]; then
+if [ -z "$ETEMPLATE"  ]; then
 ETEMPLATE=': ${V:=m.m.p}
 : ${I:=scr.dc.local/is/repo:$V}
 OPTS=(
 )'
 fi
 
-if [ -z $PCMK_TYPE ]; then
+if [ -z "$PCMK_TYPE" ]; then
   if [ $(type -t podman) ]; then
     PCMK_TYPE="ocf:heartbeat:podman"
   else
