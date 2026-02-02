@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202602010061"
+VERSION_BIN="202602020061"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -514,12 +514,12 @@ if [ $QUIET -eq 0 ]; then
   echo "pcmk_attr = ${PCMK_ATTR:-[none]}"
   echo "pcmk_opts = ${PCMK_OPTS:-[none]}"
 
-  if [ "$OPTS" != "" ]; then
+  if [ -n "$OPTS" ]; then
     echo "opts      = $(echo ${OPTS[@]}|sed 's/--/\n--/g'|grep -v '^$'|sed '2,$s/^--/            --/')"
   else
     echo "opts      = [none]"
   fi
-  if [ "$OPTS2" != "" ]; then
+  if [ -n "$OPTS2" ]; then
     echo "opts2     = ${OPTS2[@]}"
   else
     echo "opts2     = [none]"
@@ -528,7 +528,7 @@ if [ $QUIET -eq 0 ]; then
   echo "args      = ${ARGS:-[none]}"
   echo "args2     = ${ARGS2:-[none]}"
 
-  if [ "$INIT" != "" ]; then
+  if [ -n "$INIT" ]; then
     echo -n "init      = "
     for cmd in "${INIT[@]}"; do
       echo $cmd
@@ -537,17 +537,17 @@ if [ $QUIET -eq 0 ]; then
     echo "init      = [none]"
   fi
 
-  if [ "$TAGS" != "" ]; then
+  if [ -n "$TAGS" ]; then
     echo "tags      = $TAGS"
   fi
 
-  if [ "$NOTE" != "" ]; then
+  if [ -n "$NOTE" ]; then
     echo "note      = $NOTE"
   fi
 
-  if [ "$DOCS" != "" ]; then
+  if [ -n "$DOCS" ]; then
     echo -n "docs      = "
-    echo "$DOCS" | sed '/^$/d' | sed 's/\!\!/\n/g' | sed '2,$ s/^/            /'
+    echo "$DOCS" | sed '/^$/d' | sed 's/\!\!/\n/g' | sed 's/^[ \t]*//' | sed '2,$ s/^/            /'
   fi
 fi
 
