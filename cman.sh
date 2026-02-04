@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202602020061"
+VERSION_BIN="202602040061"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -47,6 +47,7 @@ AIMAGE_RE=""
 ANOTE=0
 ATAGS=0
 ALOG=0
+ADIFF=0
 HELP=0
 QUIET=0
 
@@ -271,6 +272,10 @@ while [ $# -gt 0 ]; do
       ALOG=1
       shift
       ;;
+    -diff)
+      ADIFF=1
+      shift
+      ;;
     -h|-help|--help)
       HELP=1
       shift
@@ -334,6 +339,7 @@ if [ $HELP -eq 1 ]; then
   echo "$SN -an                   # app note"
   echo "$SN -at                   # app tag"
   echo "$SN -al                   # app log"
+  echo "$SN -diff                 # app fs diff"
   echo ""
   echo "$SN -ul                   # unit list"
   echo "$SN -us                   # unit show"
@@ -950,6 +956,18 @@ if [ $ALOG -eq 1 ]; then
 
   set -ex
   docker $DEBUG_OPTS container logs -f $A
+  { set +ex; } 2>/dev/null
+fi
+
+#
+# stage: APP-DIFF
+#
+if [ $ADIFF -eq 1 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: APP-DIFF"
+
+  set -ex
+  docker $DEBUG_OPTS container diff $A
   { set +ex; } 2>/dev/null
 fi
 
