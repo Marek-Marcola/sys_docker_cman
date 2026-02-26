@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202602050061"
+VERSION_BIN="202602260061"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -506,10 +506,10 @@ if [ $QUIET -eq 0 ]; then
   echo "cwd       = $(pwd -P)"
   echo "efile     = ${EFILE:-[none]}"
   echo "App       = ${A:-[none]}"
-  echo "Ver       = ${V:-[none]}"
-  echo "Img       = ${I:-[none]}"
   echo "APN       = ${APN:-[none]}"
   echo "API       = ${API:-[none]}"
+  echo "Ver       = ${V:-[none]}"
+  echo "Img       = ${I:-[none]}"
   echo "wdir      = ${WDIR:-[none]}"
   echo "edir      = ${EDIR:-[none]}"
   echo "bdir      = ${BDIR:-[none]}"
