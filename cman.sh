@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202602260061"
+VERSION_BIN="202603020061"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -898,7 +898,7 @@ if [ $AIMAGE -eq 1 ]; then
 
       [[ "$V" = "" ]] && V="-"
 
-      echo $(basename $f) $I $V
+      echo "$(basename $f) $I $V"
     fi
     )
   done
