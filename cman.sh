@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202603020061"
+VERSION_BIN="202603040061"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -101,6 +101,8 @@ while [ $# -gt 0 ]; do
       ;;
     -A)
       A="$2"
+      APN=$(echo $A|cut -d- -f2)
+      API=$(echo $A|cut -d- -f3-)
       shift; shift
       ;;
     -V)
