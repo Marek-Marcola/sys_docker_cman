@@ -2,6 +2,8 @@
 
 VERSION_BIN="202603040061"
 
+PATH=/usr/local/bin:/usr/sbin:$PATH
+
 SN="${0##*/}"
 ID="[$SN]"
 
