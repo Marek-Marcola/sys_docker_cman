@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202603040061"
+VERSION_BIN="202603050061"
 
 PATH=/usr/local/bin:/usr/sbin:$PATH
 
@@ -105,6 +105,7 @@ while [ $# -gt 0 ]; do
       A="$2"
       APN=$(echo $A|cut -d- -f2)
       API=$(echo $A|cut -d- -f3-)
+      ID="[$A]"
       shift; shift
       ;;
     -V)
