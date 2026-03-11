@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202603080061"
+VERSION_BIN="202603110061"
 
 PATH=/usr/local/bin:/usr/sbin:$PATH
 
@@ -165,6 +165,7 @@ while [ $# -gt 0 ]; do
       shift
       ;;
     -cu)
+      CREATE=1
       CREATE_UNIT=1
       shift
       ;;
@@ -407,7 +408,6 @@ if [ $HELP -eq 1 ]; then
   echo "  ap-apn-api -du      # delete container & unit"
   echo "  ap-apn-api -E       # env edit"
   echo "  ap-apn-api -r       # run foreground (for verification)"
-  echo "  ap-apn-api -c       # run background"
   echo "  ap-apn-api -cu      # create unit & container"
   echo ""
   echo "  --- deployment: pacemaker"
@@ -719,9 +719,13 @@ if [ $CREATE -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: APP-CREATE"
 
-  set -ex
-  docker $DEBUG_OPTS container run $RUN_BG "${OPTS[@]}" --name $A $I $ARGS ${@:2}
-  { set +ex; } 2>/dev/null
+  if ! docker container inspect $A > /dev/null 2>&1; then
+    set -ex
+    docker $DEBUG_OPTS container run $RUN_BG "${OPTS[@]}" --name $A $I $ARGS ${@:2}
+    { set +ex; } 2>/dev/null
+  else
+    echo "$ID: container exists: $A"
+  fi
 fi
 
 #
@@ -731,12 +735,16 @@ if [ $CREATE_UNIT -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: APP-CREATE-UNIT"
 
-  set -ex
-  cd /etc/systemd/system
-  podman generate systemd --new --name $A -f
-  systemctl daemon-reload
-  systemctl enable --now container-$A.service
-  { set +ex; } 2>/dev/null
+  if [ ! -f /etc/systemd/system/container-$A.service ]; then
+    set -ex
+    cd /etc/systemd/system
+    podman generate systemd --new --name $A -f
+    systemctl daemon-reload
+    systemctl enable --now container-$A.service
+    { set +ex; } 2>/dev/null
+  else
+    echo "$ID: unit exists: container-$A.service"
+  fi
 fi
 
 #
