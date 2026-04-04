@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="202603110061"
+VERSION_BIN="260404"
 
 PATH=/usr/local/bin:/usr/sbin:$PATH
 
