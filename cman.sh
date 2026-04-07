@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260404"
+VERSION_BIN="260407"
 
 PATH=/usr/local/bin:/usr/sbin:$PATH
 
@@ -262,9 +262,9 @@ while [ $# -gt 0 ]; do
       ;;
     -ai)
       AIMAGE=1
-      AIMAGE_RE="$2"
+      [[ ${2:0:1} != "-" ]] && AIMAGE_RE="$2" && shift
       QUIET=1
-      shift; shift
+      shift
       ;;
     -an)
       ANOTE=1
