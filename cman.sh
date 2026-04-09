@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260407"
+VERSION_BIN="260409"
 
 PATH=/usr/local/bin:/usr/sbin:$PATH
 
@@ -1180,7 +1180,7 @@ if [ $BACKUP -ne 0 ]; then
     { set +x; } 2>/dev/null
   fi
 
-  F=$DDIR/cman-$(hostname -s)-$(date "+%Y%m%d%H%M").tar
+  F=$DDIR/cman-$(hostname -s)-$(date "+%y%m%d%H%M").tar
 
   set -x
   cd /usr/local
