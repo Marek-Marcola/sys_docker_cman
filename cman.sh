@@ -1,13 +1,15 @@
 #!/bin/bash
 
-VERSION_BIN="260409"
+VERSION_BIN="260418"
 
 PATH=/usr/local/bin:/usr/sbin:$PATH
 
 SN="${0##*/}"
 ID="[$SN]"
 
-INSTALL=0
+INSTALL_RSYNC=0
+INSTALL_ANPB=0
+INSTALL_ANPB_HP="cman"
 VERSION=0
 BACKUP=0
 BACKUP_LIST=0
@@ -79,12 +81,17 @@ fi
 
 while [ $# -gt 0 ]; do
   case $1 in
-    --inst*|-inst*)
-      INSTALL=1
-      shift
-      ;;
     --vers*|-vers*)
       VERSION=1
+      shift
+      ;;
+    --inst*|-inst*)
+      INSTALL_RSYNC=1
+      shift
+      ;;
+    --anpb|-anpb)
+      INSTALL_ANPB=1
+      [[ -n "$2" && ${2:0:1} != "-" ]] && INSTALL_ANPB_HP="$2" && shift
       shift
       ;;
     -B)
@@ -317,52 +324,54 @@ fi
 # stage: HELP
 #
 if [ $HELP -eq 1 ]; then
-  echo "$SN -install              # install"
-  echo "$SN -version              # version"
-  echo "$SN -B                    # backup"
-  echo "$SN -Bl                   # backup list"
+  echo "$SN -version                  # version"
+  echo "$SN -install                  # install with rsync"
+  echo "$SN -anpb [host_pattern] [-x] # install with ansible"
   echo ""
-  echo "$SN -L [-x]               # link show,run"
+  echo "$SN -B                        # backup"
+  echo "$SN -Bl                       # backup list"
   echo ""
-  echo "$SN -P                    # image pull"
-  echo "$SN -ic                   # image chain"
+  echo "$SN -L [-x]                   # link show,run"
   echo ""
-  echo "$SN -init [-x]            # app init show,run"
-  echo "$SN -r [opts2] [-- args2] # app run"
-  echo "$SN -e [args2]            # app exec"
-  echo "$SN -c                    # app create"
-  echo "$SN -cu                   # app create unit"
-  echo "$SN -cp                   # app create pcmk"
-  echo "$SN -d                    # app delete"
-  echo "$SN -du                   # app delete unit"
-  echo "$SN -dp                   # app delete pcmk"
-  echo "$SN -R                    # app restart"
-  echo "$SN -Ru                   # app restart unit"
-  echo "$SN -Rp                   # app restart pcmk"
-  echo "$SN -a                    # app list"
-  echo "$SN -ah                   # app history"
-  echo "$SN -ai [re]              # app image"
-  echo "$SN -an                   # app note"
-  echo "$SN -at                   # app tag"
-  echo "$SN -al                   # app log"
-  echo "$SN -diff                 # app fs diff"
+  echo "$SN -P                        # image pull"
+  echo "$SN -ic                       # image chain"
   echo ""
-  echo "$SN -ul                   # unit list"
-  echo "$SN -us                   # unit show"
-  echo "$SN -u                    # unit status"
+  echo "$SN -init [-x]                # app init show,run"
+  echo "$SN -r [opts2] [-- args2]     # app run"
+  echo "$SN -e [args2]                # app exec"
+  echo "$SN -c                        # app create"
+  echo "$SN -cu                       # app create unit"
+  echo "$SN -cp                       # app create pcmk"
+  echo "$SN -d                        # app delete"
+  echo "$SN -du                       # app delete unit"
+  echo "$SN -dp                       # app delete pcmk"
+  echo "$SN -R                        # app restart"
+  echo "$SN -Ru                       # app restart unit"
+  echo "$SN -Rp                       # app restart pcmk"
+  echo "$SN -a                        # app list"
+  echo "$SN -ah                       # app history"
+  echo "$SN -ai [re]                  # app image"
+  echo "$SN -an                       # app note"
+  echo "$SN -at                       # app tag"
+  echo "$SN -al                       # app log"
+  echo "$SN -diff                     # app fs diff"
   echo ""
-  echo "$SN -pe                   # pcmk enable"
-  echo "$SN -pd                   # pcmk disable"
-  echo "$SN -pl                   # pcmk list"
-  echo "$SN -ps                   # pcmk show"
-  echo "$SN -p                    # pcmk status"
+  echo "$SN -ul                       # unit list"
+  echo "$SN -us                       # unit show"
+  echo "$SN -u                        # unit status"
   echo ""
-  echo "$SN -l                    # env list"
-  echo "$SN -s [re]               # env show"
-  echo "$SN -E                    # env edit"
-  echo "$SN -Et                   # env edit with template"
+  echo "$SN -pe                       # pcmk enable"
+  echo "$SN -pd                       # pcmk disable"
+  echo "$SN -pl                       # pcmk list"
+  echo "$SN -ps                       # pcmk show"
+  echo "$SN -p                        # pcmk status"
   echo ""
-  echo "$SN [re]                  # app image"
+  echo "$SN -l                        # env list"
+  echo "$SN -s [re]                   # env show"
+  echo "$SN -E                        # env edit"
+  echo "$SN -Et                       # env edit with template"
+  echo ""
+  echo "$SN [re]                      # app image"
   echo ""
   echo "common opts:"
   echo "  -g  - debug"
@@ -484,9 +493,12 @@ if [ $VERSION -eq 1 ]; then
 fi
 
 #
-# stage: INSTALL
+# stage: INSTALL-RSYNC
 #
-if [ $INSTALL -eq 1 ]; then
+if [ $INSTALL_RSYNC -eq 1 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: INSTALL-RSYNC"
+
   if [ -f cman.sh ]; then
     for d in /usr/local/bin /pub/pkb/kb/data/999212-cman/999212-000020_cman_script /pub/pkb/pb/playbooks/999212-cman/files; do
       if [ -d $d ]; then
@@ -497,6 +509,32 @@ if [ $INSTALL -eq 1 ]; then
       fi
     done
   fi
+
+  exit 0
+fi
+
+#
+# stage: INSTALL-ANPB
+#
+if [ $INSTALL_ANPB -eq 1 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: INSTALL-ANPB (EVAL=$EVAL)"
+
+  if [ ! $(type -t anpb) ]; then
+    echo "$ID: error: command not found: anpb"
+    exit 1
+  fi
+
+  if [ $EVAL -eq 0 ]; then
+    set -ex
+    anpb cman_install.yml -e h=$INSTALL_ANPB_HP -v --check --diff
+    { set +ex; } 2>/dev/null
+  else
+    set -ex
+    anpb cman_install.yml -e h=$INSTALL_ANPB_HP -v
+    { set +ex; } 2>/dev/null
+  fi
+
   exit 0
 fi
 
