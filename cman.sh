@@ -2,10 +2,10 @@
 
 VERSION_BIN="260418"
 
-PATH=/usr/local/bin:/usr/sbin:$PATH
-
 SN="${0##*/}"
 ID="[$SN]"
+
+PATH=/usr/local/bin:/usr/sbin:$PATH
 
 INSTALL_RSYNC=0
 INSTALL_ANPB=0
@@ -447,7 +447,7 @@ n2a() {
 for f in /usr/local/etc/cman.env $EDIR/$A $HOME/.cman.env .cman.env $CMANENV; do
   if [ -e $f ]; then
     [[ "$EFILE" != "" ]] && EFILE="$EFILE $f" || EFILE="$f"
-    . ${f}
+    . $f
   fi
 done
 
