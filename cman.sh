@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260527"
+VERSION_BIN="260602"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -15,6 +15,7 @@ INSTALL_RSYNC=0
 INSTALL_ANPB=0
 INSTALL_ANPB_HP="cman"
 VERSION=0
+STAGE_LIST=0
 BACKUP=0
 BACKUP_LIST=0
 DEBUG=0
@@ -85,7 +86,7 @@ fi
 
 if [ -f /etc/debian_version ]; then
   OSV=$(cat /etc/debian_version)
-  if expr match $OSV kali; then
+  if expr match $OSV kali > /dev/null; then
     OSN=kali
   else
     OSN=debian$(echo $OSV|awk -F. '{print $1}')
@@ -114,6 +115,10 @@ while [ $# -gt 0 ]; do
     --anpb|-anpb)
       INSTALL_ANPB=1
       [[ -n "$2" && ${2:0:1} != "-" ]] && INSTALL_ANPB_HP="$2" && shift
+      shift
+      ;;
+    --stage|-stage)
+      STAGE_LIST=1
       shift
       ;;
     -B)
@@ -212,6 +217,12 @@ while [ $# -gt 0 ]; do
       ;;
     -dp)
       DELETE_PCMK=1
+      shift
+      ;;
+    -ru)
+      CREATE=1
+      CREATE_UNIT=1
+      DELETE_UNIT=1
       shift
       ;;
     -R)
@@ -349,6 +360,7 @@ if [ $HELP -eq 1 ]; then
   echo "$SN -version                  # version"
   echo "$SN -install                  # install with rsync"
   echo "$SN -anpb [host_pattern] [-x] # install with ansible"
+  echo "$SN -stage                    # stage list"
   echo ""
   echo "$SN -B                        # backup"
   echo "$SN -Bl                       # backup list"
@@ -361,15 +373,20 @@ if [ $HELP -eq 1 ]; then
   echo "$SN -init [-x]                # app init show,run"
   echo "$SN -r [opts2] [-- args2]     # app run"
   echo "$SN -e [args2]                # app exec"
-  echo "$SN -c                        # app create"
-  echo "$SN -cu                       # app create unit"
-  echo "$SN -cp                       # app create pcmk"
+  echo ""
   echo "$SN -d                        # app delete"
-  echo "$SN -du                       # app delete unit"
-  echo "$SN -dp                       # app delete pcmk"
+  echo "$SN -c                        # app create"
   echo "$SN -R                        # app restart"
+  echo ""
+  echo "$SN -du                       # app delete  unit"
+  echo "$SN -cu                       # app create  unit"
+  echo "$SN -ru                       # app replace unit"
   echo "$SN -Ru                       # app restart unit"
+  echo ""
+  echo "$SN -dp                       # app delete  pcmk"
+  echo "$SN -cp                       # app create  pcmk"
   echo "$SN -Rp                       # app restart pcmk"
+  echo ""
   echo "$SN -a                        # app list"
   echo "$SN -ah                       # app history"
   echo "$SN -ai [re]                  # app image"
@@ -553,6 +570,14 @@ if [ $INSTALL_ANPB -eq 1 ]; then
   anpb cman_install.yml -e h=$INSTALL_ANPB_HP $EVAL_OPT
   { set +ex; } 2>/dev/null
 
+  exit 0
+fi
+
+#
+# stage: STAGE-LIST
+#
+if [ $STAGE_LIST -eq 1 ]; then
+  cat $COMM | grep '^#' | grep 'stage:'
   exit 0
 fi
 
@@ -770,6 +795,49 @@ if [ $EXEC -eq 1 ]; then
 fi
 
 #
+# stage: APP-DELETE
+#
+if [ $DELETE -eq 1 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: APP-DELETE"
+
+  set -ex
+  docker $DEBUG_OPTS container stop $A
+  docker $DEBUG_OPTS container rm $A
+  { set +ex; } 2>/dev/null
+fi
+
+#
+# stage: APP-DELETE-UNIT
+#
+if [ $DELETE_UNIT -eq 1 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: APP-DELETE-UNIT"
+
+  set -ex
+  cd /etc/systemd/system
+  if [ -f container-$A.service ]; then
+    systemctl disable --now container-$A.service
+    rm -fv container-$A.service
+    systemctl daemon-reload
+    systemctl reset-failed container-$A.service || true
+  fi
+  { set +ex; } 2>/dev/null
+fi
+
+#
+# stage: APP-DELETE-PCMK
+#
+if [ $DELETE_PCMK -eq 1 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: APP-DELETE-PCMK"
+
+  set -ex
+  pcs resource delete $A
+  { set +ex; } 2>/dev/null
+fi
+
+#
 # stage: APP-CREATE
 #
 if [ $CREATE -eq 1 ]; then
@@ -831,49 +899,6 @@ if [ $CREATE_PCMK -eq 1 ]; then
     "${run_opts[@]}" \
     "${run_cmd[@]}" \
     $PCMK_OPTS
-  { set +ex; } 2>/dev/null
-fi
-
-#
-# stage: APP-DELETE
-#
-if [ $DELETE -eq 1 ]; then
-  (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: APP-DELETE"
-
-  set -ex
-  docker $DEBUG_OPTS container stop $A
-  docker $DEBUG_OPTS container rm $A
-  { set +ex; } 2>/dev/null
-fi
-
-#
-# stage: APP-DELETE-UNIT
-#
-if [ $DELETE_UNIT -eq 1 ]; then
-  (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: APP-DELETE-UNIT"
-
-  set -ex
-  cd /etc/systemd/system
-  if [ -f container-$A.service ]; then
-    systemctl disable --now container-$A.service
-    rm -fv container-$A.service
-    systemctl daemon-reload
-    systemctl reset-failed container-$A.service
-  fi
-  { set +ex; } 2>/dev/null
-fi
-
-#
-# stage: APP-DELETE-PCMK
-#
-if [ $DELETE_PCMK -eq 1 ]; then
-  (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: APP-DELETE-PCMK"
-
-  set -ex
-  pcs resource delete $A
   { set +ex; } 2>/dev/null
 fi
 
