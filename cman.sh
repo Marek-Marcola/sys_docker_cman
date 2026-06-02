@@ -223,6 +223,7 @@ while [ $# -gt 0 ]; do
       CREATE=1
       CREATE_UNIT=1
       DELETE_UNIT=1
+      ALOG=1
       shift
       ;;
     -R)
@@ -422,6 +423,7 @@ if [ $HELP -eq 1 ]; then
   echo ""
   echo "alias:"
   echo "  -rs  = -r -- bash -l"
+  echo "  -ru  = -du -cu -al"
   echo ""
   echo "env files: /usr/local/etc/cman.env $EDIR/\$A \$HOME/.cman.env .cman.env \$CMANENV"
   echo ""
