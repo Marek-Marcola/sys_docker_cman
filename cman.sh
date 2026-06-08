@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260602"
+VERSION_BIN="260608"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -21,6 +21,7 @@ BACKUP_LIST=0
 DEBUG=0
 DEBUG_OPTS=""
 LINK=0
+RLIST=0
 PULL=0
 CHAIN=0
 AINIT=0
@@ -164,6 +165,10 @@ while [ $# -gt 0 ]; do
       ;;
     -x)
       EVAL=1
+      shift
+      ;;
+    -lr)
+      RLIST=1
       shift
       ;;
     -P)
@@ -367,6 +372,8 @@ if [ $HELP -eq 1 ]; then
   echo "$SN -Bl                       # backup list"
   echo ""
   echo "$SN -L [-x]                   # link show,run"
+  echo ""
+  echo "$SN -lr                       # registry list"
   echo ""
   echo "$SN -P                        # image pull"
   echo "$SN -ic                       # image chain"
@@ -683,6 +690,20 @@ if [ $LINK -ne 0 ]; then
     else
       echo "# ln -svr $LSRC $LDIR/$E"
     fi
+  done
+fi
+
+#
+# stage: REG-LIST
+#
+if [ $RLIST -ne 0 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: REG-LIST"
+
+  FREPO="is/$(echo $I|awk -Fis/ '{print $2}'|awk -F: '{print $1}')"
+
+  for r in $REGISTRY_HOST; do
+    echo | xargs -L1 -t curl --netrc-file $REGISTRY_AUTH -s -k -L $r/v2/$FREPO/tags/list | jq
   done
 fi
 
