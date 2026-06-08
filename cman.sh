@@ -700,6 +700,11 @@ if [ $RLIST -ne 0 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: REG-LIST"
 
+  if [ -z "$I" ]; then
+    echo "$ID: error: require image"
+    exit 1
+  fi
+
   FREPO="is/$(echo $I|awk -Fis/ '{print $2}'|awk -F: '{print $1}')"
 
   for r in $REGISTRY_HOST; do
