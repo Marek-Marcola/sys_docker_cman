@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260615"
+VERSION_BIN="260616"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -22,6 +22,8 @@ DEBUG=0
 DEBUG_OPTS=""
 LINK=0
 LIST_REG=0
+DELETE_REG=0
+DELETE_REG_KEEP=20
 PULL=0
 CHAIN=0
 AINIT=0
@@ -169,6 +171,11 @@ while [ $# -gt 0 ]; do
       ;;
     -lr)
       LIST_REG=1
+      shift
+      ;;
+    -dr*)
+      DELETE_REG=1
+      [[ "$1" != "-dr" ]] && DELETE_REG_KEEP=${1:3}
       shift
       ;;
     -P)
@@ -374,6 +381,7 @@ if [ $HELP -eq 1 ]; then
   echo "$SN -L [-x]                   # link show,run"
   echo ""
   echo "$SN -lr                       # registry list"
+  echo "$SN -dr[k] [-x]               # registry delete (default: k[eep]=$DELETE_REG_KEEP)"
   echo ""
   echo "$SN -P                        # image pull"
   echo "$SN -ic                       # image chain"
@@ -709,6 +717,37 @@ if [ $LIST_REG -ne 0 ]; then
 
   for r in $REGISTRY_HOST; do
     echo | xargs -L1 -t curl --netrc-file $REGISTRY_AUTH -s -k -L $r/v2/$FREPO/tags/list | jq
+  done
+fi
+
+#
+# stage: DELETE-REG
+#
+if [ $DELETE_REG -ne 0 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: DELETE-REG (keep=$DELETE_REG_KEEP,EVAL=$EVAL)"
+
+  if [ -z "$I" -o -z "$REGISTRY_HOST" ]; then
+    echo "$ID: error: require image,reg"
+    exit 1
+  fi
+
+  FREPO="is/$(echo $I|awk -Fis/ '{print $2}'|awk -F: '{print $1}')"
+
+  for r in $REGISTRY_HOST; do
+    echo "[$r/$FREPO]"
+    TAGS=$(curl --netrc-file $REGISTRY_AUTH -s -k -L $r/v2/$FREPO/tags/list|jq|grep -E '\.[0-9]{10}'|xargs -L1|
+      sed 's/,$//' |awk -F. '{print $NF,$0}'|sed 's/^20//'|sort -nr|cut -f2- -d' '|sed "1,${DELETE_REG_KEEP}d"|sort -n)
+    for TAG in $TAGS; do
+      DCD=$(curl --netrc-file $REGISTRY_AUTH -s -I -k -H "Accept:application/vnd.docker.distribution.manifest.v2+json" $r/v2/$FREPO/manifests/$TAG|
+        grep -i docker-content-digest|awk '{print $2}' | tr -d "\t\r\n")
+      if [ "$DCD" != "" ]; then
+        echo "# $TAG"
+        if [ $EVAL -ne 0 ]; then
+          echo | xargs -L1 -t curl --netrc-file $REGISTRY_AUTH -k -H "Accept:application/vnd.docker.distribution.manifest.v2+json" -X DELETE $r/v2/$FREPO/manifests/$DCD
+        fi
+      fi
+    done
   done
 fi
 
