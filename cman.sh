@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260608"
+VERSION_BIN="260615"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -21,7 +21,7 @@ BACKUP_LIST=0
 DEBUG=0
 DEBUG_OPTS=""
 LINK=0
-RLIST=0
+LIST_REG=0
 PULL=0
 CHAIN=0
 AINIT=0
@@ -168,7 +168,7 @@ while [ $# -gt 0 ]; do
       shift
       ;;
     -lr)
-      RLIST=1
+      LIST_REG=1
       shift
       ;;
     -P)
@@ -694,11 +694,11 @@ if [ $LINK -ne 0 ]; then
 fi
 
 #
-# stage: REG-LIST
+# stage: LIST-REG
 #
-if [ $RLIST -ne 0 ]; then
+if [ $LIST_REG -ne 0 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: REG-LIST"
+  echo "$ID: stage: LIST_REG"
 
   if [ -z "$I" ]; then
     echo "$ID: error: require image"
