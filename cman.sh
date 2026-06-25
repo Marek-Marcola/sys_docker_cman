@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260616"
+VERSION_BIN="260626"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -60,8 +60,11 @@ ANOTE=0
 ATAGS=0
 ALOG=0
 ADIFF=0
+ASTATS=0
 HELP=0
 QUIET=0
+
+PODMAN=""
 
 ARGC=$#
 : ${ARGS:=""}
@@ -103,6 +106,10 @@ elif [ -f /etc/rocky-release ]; then
 elif [ -f /etc/redhat-release ]; then
   OSV=$(cat /etc/redhat-release)
   OSN=rhel$(echo $OSV|awk '{print $4}'|awk -F. '{print $1}')
+fi
+
+if [ $(type -t podman) ]; then
+  PODMAN=1
 fi
 
 while [ $# -gt 0 ]; do
@@ -335,6 +342,11 @@ while [ $# -gt 0 ]; do
       ADIFF=1
       shift
       ;;
+    -as)
+      ASTATS=1
+      QUIET=1
+      shift
+      ;;
     -h|-help|--help)
       HELP=1
       shift
@@ -360,6 +372,7 @@ if [[ $ARGC -eq 0 && "$A" = "cman" ]]; then
   QUIET=1
 elif [[ $ARGC -eq 0 && $COMM != *cman-exec.sh ]]; then
   AHISTORY=1
+  ASTATS=1
 elif [[ $ARGC -eq 1 && "${OPTS2[0]}" != "" ]]; then
   AIMAGE=1
   AIMAGE_RE=${OPTS2[0]}
@@ -1131,6 +1144,24 @@ if [ $ADIFF -eq 1 ]; then
   set -ex
   docker $DEBUG_OPTS container diff $A
   { set +ex; } 2>/dev/null
+fi
+
+#
+# stage: APP-STATS
+#
+if [ $ASTATS -eq 1 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: APP-STATS"
+
+  if [[ $A == cman ]]; then
+    set -ex
+    docker container stats --no-stream ${PODMAN:+--no-reset}
+    { set +ex; } 2>/dev/null
+  else
+    set -ex
+    docker container stats --no-stream ${PODMAN:+--no-reset} $A
+    { set +ex; } 2>/dev/null
+  fi
 fi
 
 #
