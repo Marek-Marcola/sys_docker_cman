@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260626"
+VERSION_BIN="260630"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -114,7 +114,7 @@ fi
 
 while [ $# -gt 0 ]; do
   case $1 in
-    --vers*|-vers*)
+    --ver*|-ver*)
       VERSION=1
       shift
       ;;
@@ -383,8 +383,8 @@ fi
 # stage: HELP
 #
 if [ $HELP -eq 1 ]; then
-  echo "$SN -version                  # version"
-  echo "$SN -install                  # install with rsync"
+  echo "$SN -ver                      # version"
+  echo "$SN -inst [-x]                # install with rsync"
   echo "$SN -anpb [host_pattern] [-x] # install with ansible"
   echo "$SN -stage                    # stage list"
   echo ""
@@ -566,17 +566,24 @@ fi
 #
 if [ $INSTALL_RSYNC -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: INSTALL-RSYNC"
+  echo "$ID: stage: INSTALL-RSYNC (EVAL=$EVAL)"
+
+  [[ $EVAL -ne 1 ]] && EVAL_OPT="-n" || EVAL_OPT=""
 
   if [ -f cman.sh ]; then
     for d in /usr/local/bin /pub/pkb/kb/data/999212-cman/999212-000020_cman_script /pub/pkb/pb/playbooks/999212-cman/files; do
       if [ -d $d ]; then
         set -ex
-        rsync -ai cman.sh $d/cman.sh
-        rsync -ai cman.sh $d/cman-exec.sh
+        rsync -ai $EVAL_OPT cman.sh $d/cman.sh
+        rsync -ai $EVAL_OPT cman.sh $d/cman-exec.sh
         { set +ex; } 2>/dev/null
       fi
     done
+  elif [ -f /pub/pkb/pb/playbooks/999212-cman/files/cman.sh ]; then
+    set -ex
+    rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999212-cman/files/cman.sh /usr/local/bin/cman.sh
+    rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999212-cman/files/cman.sh /usr/local/bin/cman-exec.sh
+    { set +ex; } 2>/dev/null
   fi
 
   exit 0
