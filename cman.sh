@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260630"
+VERSION_BIN="260701"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -1043,6 +1043,24 @@ if [ $ALIST -eq 1 ]; then
 fi
 
 #
+# stage: APP-STATS
+#
+if [ $ASTATS -eq 1 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: APP-STATS"
+
+  if [[ $A == cman ]]; then
+    set -ex
+    docker container stats --no-stream ${PODMAN:+--no-reset}
+    { set +ex; } 2>/dev/null
+  else
+    set -ex
+    docker container stats --no-stream ${PODMAN:+--no-reset} $A
+    { set +ex; } 2>/dev/null
+  fi
+fi
+
+#
 # stage: APP-HISTORY
 #
 if [ $AHISTORY -eq 1 ]; then
@@ -1151,24 +1169,6 @@ if [ $ADIFF -eq 1 ]; then
   set -ex
   docker $DEBUG_OPTS container diff $A
   { set +ex; } 2>/dev/null
-fi
-
-#
-# stage: APP-STATS
-#
-if [ $ASTATS -eq 1 ]; then
-  (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: APP-STATS"
-
-  if [[ $A == cman ]]; then
-    set -ex
-    docker container stats --no-stream ${PODMAN:+--no-reset}
-    { set +ex; } 2>/dev/null
-  else
-    set -ex
-    docker container stats --no-stream ${PODMAN:+--no-reset} $A
-    { set +ex; } 2>/dev/null
-  fi
 fi
 
 #
