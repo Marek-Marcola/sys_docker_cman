@@ -790,14 +790,26 @@ if [ $CHAIN -ne 0 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: IMAGE-CHAIN"
 
-  docker image history --format "table {{printf \"%.1000s\" .CreatedBy}}" --no-trunc $I | \
-    grep ENV | \
-    grep INFO_DATE | \
-    awk -FENV '{print $2}' | \
-    xargs -L1 | \
-    sed 's/INFO_//g' | \
-    sed 's/DATE=//g' | \
-    column -t
+  docker image history $I | grep info.cdev > /dev/null 2>&1
+
+  if [ $? -eq 0 ]; then
+    docker image history --format "table {{printf \"%.1000s\" .CreatedBy}}" --no-trunc $I | \
+      grep info.cdev | \
+      awk -FLABEL '{print $2}' | \
+      awk -F\" '{print $4}' | \
+      xargs -L1 | sed 's/,/ /g' | \
+      column -t
+  else
+    docker image history --format "table {{printf \"%.1000s\" .CreatedBy}}" --no-trunc $I | \
+      grep ENV | \
+      grep INFO_DATE | \
+      awk -FENV '{print $2}' | \
+      xargs -L1 | \
+      sed 's/INFO_//g' | \
+      sed 's/DATE=//g' | \
+      column -t
+  fi
+
   true
 fi
 
