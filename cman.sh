@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260701"
+VERSION_BIN="260713"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -796,7 +796,8 @@ if [ $CHAIN -ne 0 ]; then
     docker image history --format "table {{printf \"%.1000s\" .CreatedBy}}" --no-trunc $I | \
       grep info.cdev | \
       awk -FLABEL '{print $2}' | \
-      awk -F\" '{print $4}' | \
+      xargs -L1 | \
+      sed 's/^.*info.cdev=//' | \
       xargs -L1 | sed 's/,/ /g' | \
       column -t
   else
