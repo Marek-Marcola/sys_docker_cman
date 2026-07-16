@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260713"
+VERSION_BIN="260716"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -193,6 +193,12 @@ while [ $# -gt 0 ]; do
       CHAIN=1
       shift
       ;;
+    -iv)
+      EXEC=1
+      QUIET=1
+      ARGS2=i
+      break
+      ;;
     --init|-init)
       AINIT=1
       shift
@@ -383,6 +389,8 @@ fi
 # stage: HELP
 #
 if [ $HELP -eq 1 ]; then
+  echo "Container management tools (docker,podman)."
+  echo ""
   echo "$SN -ver                      # version"
   echo "$SN -inst [-x]                # install with rsync"
   echo "$SN -anpb [host_pattern] [-x] # install with ansible"
@@ -398,9 +406,11 @@ if [ $HELP -eq 1 ]; then
   echo ""
   echo "$SN -P                        # image pull"
   echo "$SN -ic                       # image chain"
+  echo "$SN -iv                       # image version"
   echo ""
   echo "$SN -init [-x]                # app init show,run"
   echo "$SN -r [opts2] [-- args2]     # app run"
+  echo "$SN -rs                       # app run shell"
   echo "$SN -e [args2]                # app exec"
   echo ""
   echo "$SN -d                        # app delete"
@@ -452,6 +462,7 @@ if [ $HELP -eq 1 ]; then
   echo "alias:"
   echo "  -rs  = -r -- bash -l"
   echo "  -ru  = -du -cu -al"
+  echo "  -iv  = -e i"
   echo ""
   echo "env files: /usr/local/etc/cman.env $EDIR/\$A \$HOME/.cman.env .cman.env \$CMANENV"
   echo ""
