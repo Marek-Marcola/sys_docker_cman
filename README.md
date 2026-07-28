@@ -30,7 +30,7 @@ Postinstall:
 
 Verify:
 
-    cman.sh --version
+    cman.sh --ver
 
 Help:
 
