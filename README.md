@@ -9,7 +9,9 @@ Install
 -------
 Install:
 
-    ./cman.sh --install
+    ./cman.sh --inst -x
+    -- or --
+    ./cman.sh --anpb -x
     -- or --
     cp -fv cman.sh /usr/local/bin/cman.sh
     cp -fv cman.sh /usr/local/bin/cman-exec.sh
