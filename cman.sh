@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260719"
+VERSION_BIN="260806"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -257,6 +257,7 @@ while [ $# -gt 0 ]; do
       ;;
     -Ru)
       RESTART_UNIT=1
+      ALOG=1
       shift
       ;;
     -Rp)
