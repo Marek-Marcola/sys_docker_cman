@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260806"
+VERSION_BIN="260812"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -761,17 +761,21 @@ if [ $DELETE_REG -ne 0 ]; then
 
   FREPO="is/$(echo $I|awk -Fis/ '{print $2}'|awk -F: '{print $1}')"
 
+  H="-H Accept:application/vnd.oci.image.manifest.v1+json"
+  H="$H -H Accept:application/vnd.oci.image.index.v1+json"
+  H="$H -H Accept:application/vnd.docker.distribution.manifest.v2+json"
+
   for r in $REGISTRY_HOST; do
     echo "[$r/$FREPO]"
     TAGS=$(curl --netrc-file $REGISTRY_AUTH -s -k -L $r/v2/$FREPO/tags/list|jq|grep -E '\.[0-9]{10}'|xargs -L1|
       sed 's/,$//' |awk -F. '{print $NF,$0}'|sed 's/^20//'|sort -nr|cut -f2- -d' '|sed "1,${DELETE_REG_KEEP}d"|sort -n)
     for TAG in $TAGS; do
-      DCD=$(curl --netrc-file $REGISTRY_AUTH -s -I -k -H "Accept:application/vnd.docker.distribution.manifest.v2+json" $r/v2/$FREPO/manifests/$TAG|
+      DCD=$(curl --netrc-file $REGISTRY_AUTH -s -I -k $H $r/v2/$FREPO/manifests/$TAG|
         grep -i docker-content-digest|awk '{print $2}' | tr -d "\t\r\n")
       if [ "$DCD" != "" ]; then
         echo "# $TAG"
         if [ $EVAL -ne 0 ]; then
-          echo | xargs -L1 -t curl --netrc-file $REGISTRY_AUTH -k -H "Accept:application/vnd.docker.distribution.manifest.v2+json" -X DELETE $r/v2/$FREPO/manifests/$DCD
+          echo | xargs -L1 -t curl --netrc-file $REGISTRY_AUTH -k $H -X DELETE $r/v2/$FREPO/manifests/$DCD
         fi
       fi
     done
