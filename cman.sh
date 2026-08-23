@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260819"
+VERSION_BIN="260823"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -12,6 +12,7 @@ OSC=""
 PATH=/usr/local/bin:/usr/sbin:$PATH
 
 INSTALL_RSYNC=0
+INSTALL_RSYNC_HL=""
 INSTALL_ANPB=0
 INSTALL_ANPB_HP="cman"
 VERSION=0
@@ -120,6 +121,7 @@ while [ $# -gt 0 ]; do
       ;;
     --inst*|-inst*)
       INSTALL_RSYNC=1
+	[[ -n "$2" && ${2:0:1} != "-" ]] && INSTALL_RSYNC_HL="$(echo $2|sed 's/,/ /g')" && shift
       shift
       ;;
     --anpb|-anpb)
@@ -393,7 +395,7 @@ if [ $HELP -eq 1 ]; then
   echo "Container management tools (docker,podman)."
   echo ""
   echo "$SN -ver                      # version"
-  echo "$SN -inst [-x]                # install with rsync"
+  echo "$SN -inst [host_list]    [-x] # install with rsync"
   echo "$SN -anpb [host_pattern] [-x] # install with ansible"
   echo "$SN -stage                    # stage list"
   echo ""
@@ -587,10 +589,19 @@ if [ $INSTALL_RSYNC -eq 1 ]; then
       fi
     done
   elif [ -f /pub/pkb/pb/playbooks/999212-cman/files/cman.sh ]; then
-    set -ex
-    rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999212-cman/files/cman.sh /usr/local/bin/cman.sh
-    rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999212-cman/files/cman.sh /usr/local/bin/cman-exec.sh
-    { set +ex; } 2>/dev/null
+    if [ -n "$INSTALL_RSYNC_HL" ]; then
+      for h in $INSTALL_RSYNC_HL; do
+        set -ex
+        rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999212-cman/files/cman.sh $h:/usr/local/bin/cman.sh
+        rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999212-cman/files/cman.sh $h:/usr/local/bin/cman-exec.sh
+        { set +ex; } 2>/dev/null
+      done
+    else
+      set -ex
+      rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999212-cman/files/cman.sh /usr/local/bin/cman.sh
+      rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999212-cman/files/cman.sh /usr/local/bin/cman-exec.sh
+      { set +ex; } 2>/dev/null
+    fi
   fi
 
   exit 0
