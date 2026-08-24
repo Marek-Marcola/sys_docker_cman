@@ -121,7 +121,7 @@ while [ $# -gt 0 ]; do
       ;;
     --inst*|-inst*)
       INSTALL_RSYNC=1
-	[[ -n "$2" && ${2:0:1} != "-" ]] && INSTALL_RSYNC_HL="$(echo $2|sed 's/,/ /g')" && shift
+      [[ -n "$2" && ${2:0:1} != "-" ]] && INSTALL_RSYNC_HL="$2" && shift
       shift
       ;;
     --anpb|-anpb)
@@ -575,7 +575,7 @@ fi
 #
 if [ $INSTALL_RSYNC -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: INSTALL-RSYNC (EVAL=$EVAL)"
+  echo "$ID: stage: INSTALL-RSYNC (EVAL=$EVAL HL=$INSTALL_RSYNC_HL)"
 
   [[ $EVAL -ne 1 ]] && EVAL_OPT="-n" || EVAL_OPT=""
 
@@ -590,7 +590,7 @@ if [ $INSTALL_RSYNC -eq 1 ]; then
     done
   elif [ -f /pub/pkb/pb/playbooks/999212-cman/files/cman.sh ]; then
     if [ -n "$INSTALL_RSYNC_HL" ]; then
-      for h in $INSTALL_RSYNC_HL; do
+      for h in $(echo $INSTALL_RSYNC_HL|sed 's/,/ /g'); do
         set -ex
         rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999212-cman/files/cman.sh $h:/usr/local/bin/cman.sh
         rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999212-cman/files/cman.sh $h:/usr/local/bin/cman-exec.sh
@@ -612,7 +612,7 @@ fi
 #
 if [ $INSTALL_ANPB -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: INSTALL-ANPB (EVAL=$EVAL)"
+  echo "$ID: stage: INSTALL-ANPB (EVAL=$EVAL HP=$INSTALL_ANPB_HP)"
 
   if [ ! $(type -t anpb) ]; then
     echo "$ID: error: command not found: anpb"
