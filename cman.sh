@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260823"
+VERSION_BIN="260824"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -811,6 +811,8 @@ fi
 if [ $CHAIN -ne 0 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: IMAGE-CHAIN"
+
+  echo "ManifestType       $(podman image inspect --format '{{ .ManifestType }}' $I)"
 
   docker image history $I | grep info.cdev > /dev/null 2>&1
 
