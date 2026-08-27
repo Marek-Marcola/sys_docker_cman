@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260824"
+VERSION_BIN="260828"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -704,7 +704,7 @@ fi
 #
 if [ $LINK -ne 0 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: LINK"
+  echo "$ID: stage: LINK (EVAL=$EVAL)"
 
   if [ ! -d $EDIR ]; then
     echo $ID: directory not found: $EDIR
