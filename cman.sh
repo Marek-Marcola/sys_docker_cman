@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260828"
+VERSION_BIN="260829"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -580,7 +580,7 @@ if [ $INSTALL_RSYNC -eq 1 ]; then
   [[ $EVAL -ne 1 ]] && EVAL_OPT="-n" || EVAL_OPT=""
 
   if [ -f cman.sh ]; then
-    for d in /usr/local/bin /pub/pkb/kb/data/999212-cman/999212-000020_cman_script /pub/pkb/pb/playbooks/999212-cman/files; do
+    for d in /usr/local/bin /pub/pkb/pb/playbooks/999212-cman/files; do
       if [ -d $d ]; then
         set -ex
         rsync -ai $EVAL_OPT cman.sh $d/cman.sh
@@ -600,6 +600,28 @@ if [ $INSTALL_RSYNC -eq 1 ]; then
       set -ex
       rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999212-cman/files/cman.sh /usr/local/bin/cman.sh
       rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999212-cman/files/cman.sh /usr/local/bin/cman-exec.sh
+      { set +ex; } 2>/dev/null
+    fi
+  fi
+
+  if [ -f zlocal-cman.sh ]; then
+    for d in /etc/profile.d/ /pub/pkb/pb/playbooks/999212-cman/files/; do
+      if [ -d $d ]; then
+        set -ex
+        rsync -ai $EVAL_OPT zlocal-cman.sh $d
+        { set +ex; } 2>/dev/null
+      fi
+    done
+  elif [ -f /pub/pkb/pb/playbooks/999212-cman/files/zlocal-cman.sh ]; then
+    if [ -n "$INSTALL_RSYNC_HL" ]; then
+      for h in $(echo $INSTALL_RSYNC_HL|sed 's/,/ /g'); do
+        set -ex
+        rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999212-cman/files/zlocal-cman.sh $h:/etc/profile.d/zlocal-cman.sh
+        { set +ex; } 2>/dev/null
+      done
+    else
+      set -ex
+      rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999212-cman/files/zlocal-cman.sh /etc/profile.d/zlocal-cman.sh
       { set +ex; } 2>/dev/null
     fi
   fi
