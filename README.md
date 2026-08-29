@@ -22,8 +22,8 @@ Install:
 
 Verify:
 
-    cman.sh --ver
+    cm --ver
 
 Help:
 
-    cman.sh --help
+    cm --help
