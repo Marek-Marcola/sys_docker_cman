@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260829"
+VERSION_BIN="260831"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -12,7 +12,7 @@ OSC=""
 PATH=/usr/local/bin:/usr/sbin:$PATH
 
 INSTALL_RSYNC=0
-INSTALL_RSYNC_HL=""
+INSTALL_RSYNC_HL="$(hostname -s)"
 INSTALL_ANPB=0
 INSTALL_ANPB_HP="cman"
 VERSION=0
@@ -589,19 +589,12 @@ if [ $INSTALL_RSYNC -eq 1 ]; then
       fi
     done
   elif [ -f /pub/pkb/pb/playbooks/999212-cman/files/cman.sh ]; then
-    if [ -n "$INSTALL_RSYNC_HL" ]; then
-      for h in $(echo $INSTALL_RSYNC_HL|sed 's/,/ /g'); do
-        set -ex
-        rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999212-cman/files/cman.sh $h:/usr/local/bin/cman.sh
-        rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999212-cman/files/cman.sh $h:/usr/local/bin/cman-exec.sh
-        { set +ex; } 2>/dev/null
-      done
-    else
+    for h in $(echo $INSTALL_RSYNC_HL|sed 's/,/ /g'); do
       set -ex
-      rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999212-cman/files/cman.sh /usr/local/bin/cman.sh
-      rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999212-cman/files/cman.sh /usr/local/bin/cman-exec.sh
+      rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999212-cman/files/cman.sh $h:/usr/local/bin/cman.sh
+      rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999212-cman/files/cman.sh $h:/usr/local/bin/cman-exec.sh
       { set +ex; } 2>/dev/null
-    fi
+    done
   fi
 
   if [ -f zlocal-cman.sh ]; then
@@ -613,17 +606,11 @@ if [ $INSTALL_RSYNC -eq 1 ]; then
       fi
     done
   elif [ -f /pub/pkb/pb/playbooks/999212-cman/files/zlocal-cman.sh ]; then
-    if [ -n "$INSTALL_RSYNC_HL" ]; then
-      for h in $(echo $INSTALL_RSYNC_HL|sed 's/,/ /g'); do
-        set -ex
-        rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999212-cman/files/zlocal-cman.sh $h:/etc/profile.d/zlocal-cman.sh
-        { set +ex; } 2>/dev/null
-      done
-    else
+    for h in $(echo $INSTALL_RSYNC_HL|sed 's/,/ /g'); do
       set -ex
-      rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999212-cman/files/zlocal-cman.sh /etc/profile.d/zlocal-cman.sh
+      rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999212-cman/files/zlocal-cman.sh $h:/etc/profile.d/zlocal-cman.sh
       { set +ex; } 2>/dev/null
-    fi
+    done
   fi
 
   exit 0
