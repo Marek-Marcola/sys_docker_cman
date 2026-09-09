@@ -552,6 +552,7 @@ if [ -z "$PCMK_TYPE" ]; then
 fi
 
 : ${PCMK_ATTR:="image=$I name=$A allow_pull=true"}
+: ${PCMK_BASE:="--wait"}
 : ${PCMK_OPTS:=""}
 
 #
@@ -676,6 +677,7 @@ if [ $QUIET -eq 0 ]; then
   echo "run_bg    = ${RUN_BG:-[none]}"
   echo "pcmk_type = ${PCMK_TYPE:-[none]}"
   echo "pcmk_attr = ${PCMK_ATTR:-[none]}"
+  echo "pcmk_base = ${PCMK_BASE:-[none]}"
   echo "pcmk_opts = ${PCMK_OPTS:-[none]}"
 
   if [ -n "$OPTS" ]; then
@@ -972,9 +974,13 @@ if [ $DELETE_PCMK -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: APP-DELETE-PCMK"
 
-  set -ex
-  pcs resource delete $A
-  { set +ex; } 2>/dev/null
+  if crm_resource -l 2>&1|grep -q ^$A$; then
+    set -ex
+    pcs resource delete $A
+    { set +ex; } 2>/dev/null
+  else
+    echo "$ID: I: no pacemaker resource: $A"
+  fi
 fi
 
 #
@@ -1057,6 +1063,7 @@ if [ $CREATE_PCMK -eq 1 ]; then
     $PCMK_ATTR \
     "${run_opts[@]}" \
     "${run_cmd[@]}" \
+    $PCMK_BASE \
     $PCMK_OPTS
   { set +ex; } 2>/dev/null
 fi
