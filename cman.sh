@@ -253,6 +253,12 @@ while [ $# -gt 0 ]; do
       ALOG=1
       shift
       ;;
+    -rp)
+      CREATE_PCMK=1
+      DELETE_PCMK=1
+      ALOG=1
+      shift
+      ;;
     -R)
       RESTART=1
       shift
@@ -427,6 +433,7 @@ if [ $HELP -eq 1 ]; then
   echo ""
   echo "$SN -dp                       # app delete  pcmk"
   echo "$SN -cp                       # app create  pcmk"
+  echo "$SN -rp                       # alias: -dp -cp -al"
   echo "$SN -Rp                       # app restart pcmk"
   echo ""
   echo "$SN -a                        # app list"
@@ -1032,8 +1039,8 @@ if [ $CREATE_PCMK -eq 1 ]; then
   fi
 
   if [ "$OPTS" != "" ]; then
-    s="${OPTS[@]}"
-    run_opts=( run_opts="$s" )
+    str="${OPTS[@]}"
+    run_opts=( run_opts="$str" )
   else
     run_opts=()
   fi
