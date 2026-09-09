@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260831"
+VERSION_BIN="260909"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -530,8 +530,8 @@ for f in /usr/local/etc/cman.env $EDIR/$A $HOME/.cman.env .cman.env $CMANENV; do
 done
 
 if [ -z "$ETEMPLATE"  ]; then
-ETEMPLATE=': ${V:=m.m.p}
-: ${I:=scr.dc.local/is/repo:$V}
+ETEMPLATE=': ${V:=x.y.z}
+: ${I:=scr.dc.local:5443/is/repo:$V}
 OPTS=(
 )'
 fi
@@ -993,6 +993,13 @@ if [ $CREATE_UNIT -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: APP-CREATE-UNIT"
 
+  if [ $(type -t crm_resource) ]; then
+    if crm_resource -l|grep -q ^$A$; then
+      echo "$ID: pacemaker resource exists: $A"
+      exit 1
+    fi
+  fi
+
   if [ ! -f /etc/systemd/system/container-$A.service ]; then
     set -ex
     cd /etc/systemd/system
@@ -1001,7 +1008,7 @@ if [ $CREATE_UNIT -eq 1 ]; then
     systemctl enable --now container-$A.service
     { set +ex; } 2>/dev/null
   else
-    echo "$ID: unit exists: container-$A.service"
+    echo "$ID: systemd unit exists: container-$A.service"
   fi
 fi
 
@@ -1011,6 +1018,11 @@ fi
 if [ $CREATE_PCMK -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: APP-CREATE-PCMK"
+
+  if [ -f /etc/systemd/system/container-$A.service ]; then
+    echo "$ID: systemd unit exists: container-$A.service"
+    exit 1
+  fi
 
   if [ "$OPTS" != "" ]; then
     s="${OPTS[@]}"
