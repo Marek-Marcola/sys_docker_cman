@@ -624,7 +624,7 @@ if [ $INSTALL_ANPB -eq 1 ]; then
   echo "$ID: stage: INSTALL-ANPB (EVAL=$EVAL HP=$INSTALL_ANPB_HP)"
 
   if [ ! $(type -t anpb) ]; then
-    echo "$ID: error: command not found: anpb"
+    echo "$ID: E: command not found: anpb"
     exit 1
   fi
 
@@ -716,11 +716,11 @@ if [ $LINK -ne 0 ]; then
   echo "$ID: stage: LINK (EVAL=$EVAL)"
 
   if [ ! -d $EDIR ]; then
-    echo $ID: directory not found: $EDIR
+    echo "$ID: E: directory not found: $EDIR"
     exit 1
   fi
   if [ ! -d $LDIR ]; then
-    echo $ID: directory not found: $LDIR
+    echo "$ID: E: directory not found: $LDIR"
     exit 1
   fi
 
@@ -756,7 +756,7 @@ if [ $LIST_REG -ne 0 ]; then
   echo "$ID: stage: LIST_REG"
 
   if [ -z "$I" ]; then
-    echo "$ID: error: require image"
+    echo "$ID: E: require image"
     exit 1
   fi
 
@@ -775,7 +775,7 @@ if [ $DELETE_REG -ne 0 ]; then
   echo "$ID: stage: DELETE-REG (keep=$DELETE_REG_KEEP,EVAL=$EVAL)"
 
   if [ -z "$I" -o -z "$REGISTRY_HOST" ]; then
-    echo "$ID: error: require image,reg"
+    echo "$ID: E: require image,reg"
     exit 1
   fi
 
@@ -977,12 +977,19 @@ if [ $CREATE -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
   echo "$ID: stage: APP-CREATE"
 
+  if [ $(type -t crm_resource) ]; then
+    if crm_resource -l 2>&1|grep -q ^$A$; then
+      echo "$ID: E: pacemaker resource exists: $A"
+      exit 1
+    fi
+  fi
+
   if ! docker container inspect $A > /dev/null 2>&1; then
     set -ex
     docker $DEBUG_OPTS container run $RUN_BG "${OPTS[@]}" --name $A $I $ARGS ${@:2}
     { set +ex; } 2>/dev/null
   else
-    echo "$ID: container exists: $A"
+    echo "$ID: I: container exists: $A"
   fi
 fi
 
@@ -994,8 +1001,8 @@ if [ $CREATE_UNIT -eq 1 ]; then
   echo "$ID: stage: APP-CREATE-UNIT"
 
   if [ $(type -t crm_resource) ]; then
-    if crm_resource -l|grep -q ^$A$; then
-      echo "$ID: pacemaker resource exists: $A"
+    if crm_resource -l 2>&1|grep -q ^$A$; then
+      echo "$ID: E: pacemaker resource exists: $A"
       exit 1
     fi
   fi
@@ -1008,7 +1015,7 @@ if [ $CREATE_UNIT -eq 1 ]; then
     systemctl enable --now container-$A.service
     { set +ex; } 2>/dev/null
   else
-    echo "$ID: systemd unit exists: container-$A.service"
+    echo "$ID: I: systemd unit exists: container-$A.service"
   fi
 fi
 
@@ -1020,7 +1027,7 @@ if [ $CREATE_PCMK -eq 1 ]; then
   echo "$ID: stage: APP-CREATE-PCMK"
 
   if [ -f /etc/systemd/system/container-$A.service ]; then
-    echo "$ID: systemd unit exists: container-$A.service"
+    echo "$ID: E: systemd unit exists: container-$A.service"
     exit 1
   fi
 
@@ -1350,7 +1357,7 @@ if [ $ESHOW -eq 1 ]; then
 
   if [ "$A" != "cman" -a  "$ESHOW_RE" = "" ]; then
     if [ ! -f $EDIR/$A ]; then
-      echo file not found: $EDIR/$A
+      echo "$ID: E: file not found: $EDIR/$A"
     else
       set -ex
       cat $EDIR/$A
@@ -1376,7 +1383,7 @@ if [ $EEDIT -eq 1 ]; then
   echo "$ID: stage: ENV-EDIT"
 
   if [ ! -d $EDIR ]; then
-    echo directory not found: $EDIR
+    echo "$ID: E: directory not found: $EDIR"
   else
     if [ "$EDITOR" != "" ]; then
       set -ex
@@ -1398,13 +1405,13 @@ if [ $EEDIT_TEMPLATE -eq 1 ]; then
   echo "$ID: stage: ENV-EDIT-TEMPLATE"
 
   if [ ! -d $EDIR ]; then
-    echo directory not found: $EDIR
+    echo "$ID E: directory not found: $EDIR"
   else
     if [ ! -f $EDIR/$A ]; then
-      echo create file: $EDIR/$A
+      echo "$ID I: create file: $EDIR/$A"
       echo "$ETEMPLATE" > $EDIR/$A
     else
-      echo file exists: $EDIR/$A
+      echo "$ID I: file exists: $EDIR/$A"
     fi
     set -ex
     vi $EDIR/$A
