@@ -4,3 +4,9 @@ cm() {
   local desc="@@container management (via cman.sh)@@"
   cman.sh $@
 }
+
+cdcm() {
+  local D="/usr/local/etc/cman.d"
+  cd $D
+  pwd
+}
