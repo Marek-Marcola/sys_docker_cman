@@ -6,6 +6,7 @@ cm() {
 }
 
 cdcm() {
+  local desc="@@change working directory to cman $EDIR@@"
   local D="/usr/local/etc/cman.d"
   cd $D
   pwd
