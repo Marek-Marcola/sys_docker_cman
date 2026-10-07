@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260925"
+VERSION_BIN="261007"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -704,8 +704,8 @@ if [ $QUIET -eq 0 ]; then
 
   if [ -n "$INIT" ]; then
     echo -n "init      = "
-    for cmd in "${INIT[@]}"; do
-      echo $cmd
+    for s in "${INIT[@]}"; do
+      echo "$s"
     done | sed '2,$s/^/            /'
   else
     echo "init      = [none]"
@@ -721,7 +721,9 @@ if [ $QUIET -eq 0 ]; then
 
   if [ -n "$DOCS" ]; then
     echo -n "docs      = "
-    echo "$DOCS" | sed 's/\!\!/\n/g' | sed 's/^[ \t]*//' | sed '/^$/d' | sed '2,$ s/^/            /'
+    for s in "${DOCS[@]}"; do
+      echo "$s"
+    done | sed '2,$s/^/            /'
   fi
 fi
 
