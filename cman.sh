@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="261010"
+VERSION_BIN="261014"
 
 SN="${0##*/}"
 ID="[${SN%.sh}]"
@@ -11,6 +11,8 @@ OSC=""
 
 PATH=/usr/local/bin:/usr/sbin:$PATH
 
+ARCH=0
+ARCH_DIR="/tmp"
 INSTALL_RSYNC=0
 INSTALL_RSYNC_HL="$(hostname -s)"
 INSTALL_ANPB=0
@@ -118,6 +120,11 @@ while [ $# -gt 0 ]; do
   case $1 in
     --ver*|-ver*)
       VERSION=1
+      shift
+      ;;
+    --arch*|-arch*)
+      ARCH=1
+      [[ -n "$2" && ${2:0:1} != "-" ]] && ARCH_DIR="$2" && shift
       shift
       ;;
     --inst*|-inst*)
@@ -408,6 +415,7 @@ if [ $HELP -eq 1 ]; then
   echo "Container management tools (docker,podman)."
   echo ""
   echo "$SN -ver                      # version"
+  echo "$SN -arch [dir]               # archive"
   echo "$SN -inst [host_list]    [-x] # install with rsync"
   echo "$SN -anpb [host_pattern] [-x] # install with ansible"
   echo "$SN -stage                    # stage list"
@@ -583,6 +591,34 @@ if [ $VERSION -eq 1 ]; then
     containerd --version
     { set +ex; } 2>/dev/null
   fi
+  exit 0
+fi
+
+#
+# stage: ARCH
+#
+if [ $ARCH -eq 1 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: ARCH (DIR=$ARCH_DIR)"
+
+  if [ ! -d "$ARCH_DIR" ]; then
+    echo "$ID: E: arch dir not found: $ARCH_DIR"
+    exit 1
+  fi
+
+  if [ ! -f cman.sh ]; then
+    echo "$ID: E: no files to archive"
+    exit 1
+  fi
+
+  F=$ARCH_DIR/cman-$(date "+%y%m%d%H%M").tar
+
+  set -x
+  tar cf $F LICENSE README* *.sh
+  gzip -f $F
+  ls -ogh --time-style=long $F.gz
+  { set +x; } 2>/dev/null
+
   exit 0
 fi
 
