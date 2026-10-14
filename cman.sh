@@ -611,10 +611,11 @@ if [ $ARCH -eq 1 ]; then
     exit 1
   fi
 
-  F=$ARCH_DIR/cman-$(date "+%y%m%d%H%M").tar
+  D=cman-$(date "+%y%m%d%H%M")
+  F=$ARCH_DIR/$D.tar
 
   set -x
-  tar cf $F LICENSE README* *.sh
+  tar cf $F --transform "s|^|$D/|" LICENSE README* *.sh
   gzip -f $F
   ls -ogh --time-style=long $F.gz
   { set +x; } 2>/dev/null
