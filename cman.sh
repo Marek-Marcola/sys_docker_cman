@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="261030"
+VERSION_BIN="261101"
 
 SN="${0##*/}"
 ID="[${SN%.sh}]"
@@ -221,11 +221,13 @@ while [ $# -gt 0 ]; do
       ;;
     -r)
       RUN=1
+      CHAIN=1
       shift
       ;;
     -rs)
       RUN=1
       ARGS="bash -l"
+      CHAIN=1
       shift
       ;;
     -e)
