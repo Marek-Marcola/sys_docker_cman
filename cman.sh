@@ -1,13 +1,13 @@
 #!/bin/bash
 
-VERSION_BIN="261101"
+VERSION_BIN="261105"
 
 SN="${0##*/}"
 ID="[${SN%.sh}]"
 
-OSN=""
-OSA=""
-OSC=""
+: ${OSN:=""}
+: ${OSA:=""}
+: ${OSC:=""}
 
 PATH=/usr/local/bin:/usr/sbin:$PATH
 
@@ -94,22 +94,28 @@ if [[ $COMM == *cman-exec.sh ]]; then
   QUIET=1
 fi
 
-if [ -f /etc/debian_version ]; then
-  OSV=$(cat /etc/debian_version)
-  if expr match $OSV kali > /dev/null; then
-    OSN=kali
-  else
-    OSN=debian$(echo $OSV|awk -F. '{print $1}')
+if [ -z "$OSN" ]; then
+  if [ -f /etc/debian_version ]; then
+    OSV=$(cat /etc/debian_version)
+    if expr match $OSV kali > /dev/null; then
+      OSN=kali
+    else
+      OSN=debian$(echo $OSV|awk -F. '{print $1}')
+    fi
+  elif [ -f /etc/centos-release ]; then
+    OSV=$(cat /etc/centos-release)
+    OSN=centos$(echo $OSV|awk '{print $4}'|awk -F. '{print $1}')
+  elif [ -f /etc/rocky-release ]; then
+    OSV=$(cat /etc/rocky-release)
+    OSN=rocky$(echo $OSV|awk '{print $4}'|awk -F. '{print $1}')
+  elif [ -f /etc/redhat-release ]; then
+    OSV=$(cat /etc/redhat-release)
+    OSN=rhel$(echo $OSV|awk '{print $4}'|awk -F. '{print $1}')
   fi
-elif [ -f /etc/centos-release ]; then
-  OSV=$(cat /etc/centos-release)
-  OSN=centos$(echo $OSV|awk '{print $4}'|awk -F. '{print $1}')
-elif [ -f /etc/rocky-release ]; then
-  OSV=$(cat /etc/rocky-release)
-  OSN=rocky$(echo $OSV|awk '{print $4}'|awk -F. '{print $1}')
-elif [ -f /etc/redhat-release ]; then
-  OSV=$(cat /etc/redhat-release)
-  OSN=rhel$(echo $OSV|awk '{print $4}'|awk -F. '{print $1}')
+fi
+
+if [ -z "$OSA" ]; then
+  OSA=$(uname -m)
 fi
 
 if [ $(type -t podman) ]; then
@@ -710,6 +716,7 @@ if [ $QUIET -eq 0 ]; then
   [[ -n $INFO ]] && echo "info      = $INFO"
   echo "cwd       = $(pwd -P)"
   echo "OSN       = ${OSN:-[none]}"
+  echo "OSA       = ${OSA:-[none]}"
   echo "efile     = ${EFILE:-[none]}"
   echo "App       = ${A:-[none]}"
   echo "APN       = ${APN:-[none]}"
