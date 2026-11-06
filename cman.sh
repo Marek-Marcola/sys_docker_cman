@@ -238,6 +238,12 @@ while [ $# -gt 0 ]; do
       CHAIN=1
       shift
       ;;
+    -rse)
+      RUN=1
+      OPTS2+=('--entrypoint=["bash","-l"]')
+      CHAIN=1
+      shift
+      ;;
     -e)
       EXEC=1
       QUIET=1
@@ -446,6 +452,7 @@ if [ $HELP -eq 1 ]; then
   echo "$SN -init [-x]                # app init show,run"
   echo "$SN -r [opts2] [-- args2]     # app run"
   echo "$SN -rs                       # alias: -r -- bash -l"
+  echo "$SN -rse                      # alias: -r --entrypoint=[\"bash\",\"-l\"]"
   echo "$SN -e [args2]                # app exec"
   echo ""
   echo "$SN -d                        # app delete"
