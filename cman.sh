@@ -1,6 +1,8 @@
 #!/bin/bash
+#
+# Docker/Podman container lifecycle management.
 
-VERSION_BIN="261105"
+VERSION_BIN="261106"
 
 SN="${0##*/}"
 ID="[${SN%.sh}]"
