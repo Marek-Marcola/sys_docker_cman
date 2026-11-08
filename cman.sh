@@ -2,7 +2,7 @@
 #
 # Docker/Podman container lifecycle management.
 
-VERSION_BIN="261106"
+VERSION_BIN="261108"
 
 SN="${0##*/}"
 ID="[${SN%.sh}]"
@@ -418,7 +418,7 @@ if [[ $ARGC -eq 0 && "$A" = "cman" ]]; then
 elif [[ $ARGC -eq 0 && $COMM != *cman-exec.sh ]]; then
   AHISTORY=1
   ASTATS=1
-elif [[ $ARGC -eq 1 && "${OPTS2[0]}" != "" ]]; then
+elif [[ $ARGC -eq 1 && "${OPTS2[0]}" != "" && $RUN -eq 0 ]]; then
   AIMAGE=1
   AIMAGE_RE=${OPTS2[0]}
   QUIET=1
