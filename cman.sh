@@ -2,7 +2,7 @@
 #
 # Docker/Podman container lifecycle management.
 
-VERSION_BIN="261108"
+VERSION_BIN="261123"
 
 SN="${0##*/}"
 ID="[${SN%.sh}]"
@@ -628,7 +628,7 @@ if [ $ARCHIVE -eq 1 ]; then
     exit 1
   fi
 
-  D=cman-$(date "+%y%m%d%H%M")
+  D=sys_docker_cman_$(date "+%y%m%d%H%M")
   F=$ARCHIVE_DIR/$D.tar
 
   set -x
