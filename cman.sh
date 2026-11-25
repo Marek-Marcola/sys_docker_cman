@@ -587,7 +587,7 @@ if [ -z "$PCMK_TYPE" ]; then
 fi
 
 : ${PCMK_ATTR:="image=$I name=$A allow_pull=true"}
-: ${PCMK_BASE:="--wait"}
+: ${PCMK_BASE:=""}
 : ${PCMK_OPTS:=""}
 
 #
