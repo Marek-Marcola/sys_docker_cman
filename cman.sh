@@ -2,7 +2,7 @@
 #
 # Docker/Podman container lifecycle management.
 
-VERSION_BIN="261124"
+VERSION_BIN="261125"
 
 SN="${0##*/}"
 ID="[${SN%.sh}]"
@@ -12,6 +12,8 @@ ID="[${SN%.sh}]"
 : ${OSC:=""}
 
 PATH=/usr/local/bin:/usr/sbin:$PATH
+
+shopt -s extglob
 
 ARCHIVE=0
 ARCHIVE_DIR="/tmp"
@@ -1245,7 +1247,7 @@ fi
 #
 if [ $AIMAGE -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: APP-IMAGE (re: *$AIMAGE_RE*)"
+  echo "$ID: stage: APP-IMAGE (glob: *$AIMAGE_RE*)"
 
   (
   echo App Image Ver
